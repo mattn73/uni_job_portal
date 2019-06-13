@@ -1,0 +1,32 @@
+fos_user:
+  db_driver: orm
+
+  firewall_name: main
+
+  user_class: App\Entity\User
+
+  from_email:
+    address: "contact@jobportal.com"
+    sender_name: "no-reply@ajobportal.com"
+
+  service:
+    mailer: fos_user.mailer.twig_swift
+
+#  registration:
+#    form:
+#      type: App\Form\RegistrationProfessionalType
+#    confirmation:
+#      enabled: true
+#      template:   '@FOSUser/Registration/email.txt.twig'
+#
+#  resetting:
+#    retry_ttl: 0
+#    token_ttl: 3600
+#    email:
+#      template:   '@FOSUser/Resetting/email.txt.twig'
+#    form:
+#      validation_groups:  [Default, create]
+#
+#  change_password:
+#    form:
+#      validation_groups:  [ChangePassword, create]
