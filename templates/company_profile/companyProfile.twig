@@ -1,0 +1,22 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Job Portal - New Company Profile{% endblock %}
+
+{% block body %}
+    {{ form_start(form) }}
+
+    {{ form_row(form.companyEmail) }}
+
+    {{ form_row(form.companyName) }}
+
+    {{ form_row(form.name) }}
+
+    {{ form_row(form.email) }}
+
+    {{ form_row(form.address) }}
+
+    {{ form_row(form.user) }}
+
+    {{ form_row(form.save) }}
+    {{ form_end(form) }}
+{% endblock %}
