@@ -47,4 +47,12 @@ class SeekerRepository extends ServiceEntityRepository
         ;
     }
     */
+
+    public function findContactPerson()
+    {
+        return $this->createQueryBuilder('s')
+            ->getQuery()
+            ->getResult()
+            ;
+    }
 }
