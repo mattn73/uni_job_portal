@@ -48,6 +48,11 @@ class SeekerRepository extends ServiceEntityRepository
     }
     */
 
+    /**
+     * find all users
+     *
+     * @return mixed
+     */
     public function findContactPerson()
     {
         return $this->createQueryBuilder('s')

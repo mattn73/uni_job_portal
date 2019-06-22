@@ -2,28 +2,16 @@
 
 namespace App\Form;
 
-use App\Entity\Company;
-use App\Entity\User;
 use Symfony\Component\Form\AbstractType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
 use Symfony\Component\Form\Extension\Core\Type\EmailType;
-use Symfony\Bridge\Doctrine\Form\Type\EntityType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
-use Symfony\Component\Validator\Constraints\Count;
 use Symfony\Component\Validator\Constraints\NotBlank;
-use App\Repository\SeekerRepository;
 
 class CompanyProfileType extends AbstractType
 {
-    private $seekerRepository;
-
-    public function __construct(SeekerRepository $seekerRepository)
-    {
-        $this->seekerRepository = $seekerRepository;
-    }
-
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
@@ -65,19 +53,6 @@ class CompanyProfileType extends AbstractType
                     new NotBlank([
                         'message' => 'Please enter your Address'
                     ]),
-                ]
-            ])
-            ->add('user', EntityType::class, [
-                'label' => 'Choose',
-                'required' => false,
-                'class' => User::class,
-                'choices' => $this->seekerRepository->findContactPerson(),
-                'placeholder' => 'contact person',
-                'constraints' => [
-                    new Count([
-                        'min' => 1,
-                        'minMessage' => 'Please choose a user contact',
-                    ])
                 ]
             ])
             ->add('save', SubmitType::class, [

@@ -3,7 +3,7 @@
 {% block title %}Job Portal - New Company Profile{% endblock %}
 
 {% block body %}
-    {{ form_start(form) }}
+    {{ form_start(form, {'attr': {'id': 'frmCompany'}}) }}
 
     {{ form_row(form.companyEmail) }}
 
@@ -15,7 +15,12 @@
 
     {{ form_row(form.address) }}
 
-    {{ form_row(form.user) }}
+    <select name="stlseeker" id="stlseeker" required>
+        <option value="0">Select Contact Person</option>
+        {% for seeker in seekers %}
+            <option value="{{ seeker.id }}">{{ seeker.firstname ~ ' ' ~ seeker.lastname }}</option>
+        {% endfor %}
+    </select>
 
     {{ form_row(form.save) }}
     {{ form_end(form) }}
