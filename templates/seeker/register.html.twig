@@ -5,6 +5,11 @@
 
 {% block body %}
 
-    hell
+    {{ form_start(form, {'attr': {'id': 'registration-form', 'class' : 'inscription_Pro', 'novalidate':'true'}}) }}
+
+    {{ form_row(form) }}
+
+
+    {{ form_end(form) }}
 
 {% endblock %}
