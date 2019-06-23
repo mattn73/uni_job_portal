@@ -42,18 +42,19 @@ class SeekerController extends AbstractController
 
             $password = $form->get('password')->getData();
 
-            var_dump($password);die;
 
             $em =  $this->getDoctrine()->getManager();
+
+            $seeker->getLastname();
 
             $userManager = $this->userManager;
 
 
             $user = $userManager->createUser();
 
-            $user->setUsername('System');
-            $user->setEmail('system@example.com');
-            $user->setPlainPassword('test');
+            $user->setUsername(hash('ripemd160', $seeker->getFirstname() . $seeker->getLastName()));
+            $user->setEmail($seeker->getEmail());
+            $user->setPlainPassword($password);
             $user->setEnabled(true);
 
             $userManager->updateUser($user, true);

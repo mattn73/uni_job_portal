@@ -66,7 +66,7 @@ class Seeker
 
     /**
      * @ORM\OneToOne(targetEntity="App\Entity\User", inversedBy="seeker", cascade={"persist", "remove"})
-     * @ORM\JoinColumn(nullable=false)
+     * @ORM\JoinColumn(nullable=true)
      */
     private $user;
 
