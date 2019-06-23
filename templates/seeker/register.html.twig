@@ -5,9 +5,70 @@
 
 {% block body %}
 
-    {{ form_start(form, {'attr': {'id': 'registration-form', 'class' : 'inscription_Pro', 'novalidate':'true'}}) }}
+    {{ form_start(form, {'attr': {'id': 'registration-form', 'novalidate':'true'}}) }}
 
-    {{ form_row(form) }}
+    <div class="form-group name">
+        {{ form_label(form.title) }}
+        {{ form_widget(form.title) }}
+        {{- form_errors(form.title) -}}
+    </div>
+    <div class="form-group surname">
+        {{ form_label(form.lastName) }}
+        {{ form_widget(form.lastName) }}
+        {{- form_errors(form.lastName) -}}
+
+    </div>
+    <div class="form-group enterprise">
+        {{ form_label(form.firstname) }}
+        {{ form_widget(form.firstname) }}
+        {{- form_errors(form.firstname) -}}
+    </div>
+    <div class="form-group siren-siret">
+        {{ form_label(form.address) }}
+        {{ form_widget(form.address) }}
+        {{- form_errors(form.address) -}}
+
+    </div>
+    <div class="form-group address">
+        {{ form_label(form.contact) }}
+        {{ form_widget(form.contact) }}
+        {{- form_errors(form.contact) -}}
+    </div>
+    <div class="form-group city">
+        {{ form_label(form.dob) }}
+        {{ form_widget(form.dob) }}
+        {{- form_errors(form.dob) -}}
+
+    </div>
+    <div class="form-group tel">
+        {{ form_label(form.hqa) }}
+        {{ form_widget(form.hqa) }}
+        {{- form_errors(form.hqa) -}}
+
+    </div>
+    </div>
+
+    <div class="wrap-email clearfix">
+        <h3>Email et mot de passe</h3>
+        <div class="form-group email">
+            {{ form_label(form.email) }}
+            {{ form_widget(form.email) }}
+            {{- form_errors(form.email) -}}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.password.children['first']) }}
+            {{ form_widget(form.password.children['first']) }}
+            {{ form_errors(form.password.children['first']) }}
+        </div>
+
+        <div class="form-group">
+            {{ form_label(form.password.children['second']) }}
+            {{ form_widget(form.password.children['second']) }}
+            {{ form_errors(form.password.children['second']) }}
+        </div>
+
+    </div>
 
 
     {{ form_end(form) }}

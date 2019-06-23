@@ -7,9 +7,17 @@ use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
 use App\Entity\Seeker;
 use App\Form\RegistrationSeekerType;
+use FOS\UserBundle\Model\UserManagerInterface;
 
 class SeekerController extends AbstractController
 {
+    private $userManager;
+
+    public function __construct( UserManagerInterface $userManager)
+    {
+        $this->userManager = $userManager;
+    }
+
     /**
      * @Route("/seeker", name="seeker")
      */
@@ -30,11 +38,16 @@ class SeekerController extends AbstractController
         $form = $this->createForm(RegistrationSeekerType::class, $seeker);
 
         $form->handleRequest($request);
-        if ($form->isSubmitted()) {
+        if ($form->isSubmitted() && $form->isValid()) {
+
+            $password = $form->get('password')->getData();
+
+            var_dump($password);die;
 
             $em =  $this->getDoctrine()->getManager();
 
-            $userManager = $this->container->get('fos_user.user_manager');
+            $userManager = $this->userManager;
+
 
             $user = $userManager->createUser();
 
