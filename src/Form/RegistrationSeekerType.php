@@ -16,19 +16,23 @@ use Symfony\Component\Form\Extension\Core\Type\DateType;
 use Symfony\Component\Form\Extension\Core\Type\PasswordType;
 use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 use Symfony\Component\Form\Extension\Core\Type\SubmitType;
+use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
 
 class RegistrationSeekerType extends AbstractType
 {
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
         $builder
-            ->add('title', TextType::class,[
-                'label' => 'title',
-                'constraints' => [
-                    new NotBlank(array('message' => "This lastname is invalid")),
-                    new Length(array('max'=>100,'maxMessage'=>'Cannot contain more than 100 Caractere'))
-                ]
-            ])
+            ->add('title', ChoiceType::class, array(
+                'choices' => array('Mme' => 'Mme',
+                    'Mr' => 'Mr'),
+                'expanded' => true,
+                'multiple' => false,
+                'data' => 'Mme',
+                'label' => 'Civilité :',
+                'attr' => array('class' => 'form-check-inline'),
+                'constraints' => new NotBlank(),
+            ))
             ->add('lastName', TextType::class,[
                 'label' => 'Lastname*',
                 'constraints' => [

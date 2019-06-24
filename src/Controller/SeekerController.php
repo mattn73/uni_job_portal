@@ -45,10 +45,7 @@ class SeekerController extends AbstractController
 
             $em =  $this->getDoctrine()->getManager();
 
-            $seeker->getLastname();
-
             $userManager = $this->userManager;
-
 
             $user = $userManager->createUser();
 
