@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use http\Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
@@ -13,7 +14,7 @@ class SeekerController extends AbstractController
 {
     private $userManager;
 
-    public function __construct( UserManagerInterface $userManager)
+    public function __construct(UserManagerInterface $userManager)
     {
         $this->userManager = $userManager;
     }
@@ -43,19 +44,29 @@ class SeekerController extends AbstractController
             $password = $form->get('password')->getData();
 
 
-            $em =  $this->getDoctrine()->getManager();
+            $em = $this->getDoctrine()->getManager();
 
             $userManager = $this->userManager;
 
             $user = $userManager->createUser();
 
-            $user->setUsername(hash('ripemd160', $seeker->getFirstname() . $seeker->getLastName()));
+            $user->setUsername(uniqid('php_'));
             $user->setEmail($seeker->getEmail());
             $user->setPlainPassword($password);
-            $user->setEnabled(true);
+            $user->setEnabled(false);
+
+            if (null === $user->getConfirmationToken()) {
+                $user->setConfirmationToken(SELF::generateToken());
+            }
 
             $userManager->updateUser($user, true);
+            
+            try {
+                SELF::sendConfirmationMail($user, $seeker->getFirstname());
+            } catch (\Exception $e) {
 
+
+            }
             $seeker->setUser($user);
 
             $em->persist($seeker);
@@ -68,5 +79,66 @@ class SeekerController extends AbstractController
         ]);
     }
 
+    /**
+     * @return string
+     */
+    public static function generateToken()
+    {
+        $token = openssl_random_pseudo_bytes(16);
+        return bin2hex($token);
+    }
 
+    /**
+     * @param $user
+     * @param $name
+     * @param \Swift_Mailer $mailer
+     * @param \Twig\Environment $templating
+     * @throws \Exception
+     */
+    public static function sendConfirmationMail($user, $name)
+    {
+        if (null !== $user && null === $user->getConfirmationToken()) {
+            $mailer = new \Swift_Mailer;
+            $templating = new \Twig\Environment;
+
+            $url = SELF::generateEmailUrl($user->getConfirmationToken());
+
+            $message = (new \Swift_Message('Confirmation Email'))
+                ->setFrom('send@jobportal.com')
+                ->setTo($user->getEmail())
+                ->setBody(
+                    $templating->renderView(
+                    // templates/emails/registration.html.twig
+                        'emails/confirmation_account.html.twig',
+                        array('url' => $url,
+                            'name' => $name
+                        )
+                    ),
+                    'text/html'
+                );
+
+            try {
+                $mailer->send($message);
+            } catch (\Exception $e) {
+
+
+            }
+
+        } else {
+            throw new \Exception("Invalid User");
+        }
+    }
+
+    /**
+     * @param $token
+     * @return string
+     */
+    public static function generateEmailUrl($token)
+    {
+        $url = $_ENV['ROOT_URL'];
+        return $url . 'confirm-account/' . $token;
+    }
 }
+
+
+
