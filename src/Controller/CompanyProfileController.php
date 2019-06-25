@@ -64,7 +64,7 @@ class CompanyProfileController extends AbstractController
             $this->addFlash('success', 'Contact person and Company was saved');
         }
 
-        return $this->render('company_profile/companyProfile.twig', [
+        return $this->render('company_profile/login.twig', [
             'form' => $form->createView(),
         ]);
     }
