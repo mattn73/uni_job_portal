@@ -11,95 +11,61 @@ use Symfony\Component\Routing\Annotation\Route;
 use App\Form\CompanyProfileType;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use FOS\UserBundle\Model\UserManagerInterface;
 
 class CompanyProfileController extends AbstractController
 {
+    private $userManager;
+
+    public function __construct(UserManagerInterface $userManager)
+    {
+        $this->userManager = $userManager;
+    }
+
     /**
-     * @Route("/company/profile", name="company_profile", options={"expose"=true})
+     * @Route("/company/register", name="company_register", options={"expose"=true})
      * @param Request $request
      * @return Response
      */
     public function index(Request $request)
     {
-        //get all seeker
         $em = $this->getDoctrine()->getManager();
-        $seekerRepo = $this->getDoctrine()->getRepository(Seeker::class);
-        $allSeeker = $seekerRepo->findContactPerson();
-
         //form
         $form = $this->createForm(CompanyProfileType::class);
         $form->handleRequest($request);
+        //new company
+        $company = new Company();
 
         if ($form->isSubmitted() && $form->isValid()) {
-            //get submitted data
-            $postData = $form->getData();
-            $seekerId = $request->get('stlseeker');
-            $cEmail = $postData['companyEmail'];
-            $cName = $postData['companyName'];
-            $email = $postData['email'];
-            $address = $postData['address'];
-            $name = $postData['name'];
-
-            //get user obj
-            $seeker = $seekerRepo->find($seekerId);
-
-            //create new company
-            $nCompany = new Company();
-            $nCompany->setCompanyEmail($cEmail);
-            $nCompany->setAddress($address);
-            $nCompany->setCompanyName($cName);
-            $nCompany->setEmail($email);
-            $nCompany->setUser($seeker->getUser());
-            $nCompany->setName($name);
-
-            //save to db
-            $em->persist($nCompany);
+            $password = $form->get('password')->getData();
+            $companyEmail = $form->get('companyEmail')->getData();
+            $companyName = $form->get('companyName')->getData();
+            $cpName = $form->get('cpName')->getData();
+            $cpEmail = $form->get('cpEmail')->getData();
+            $pAddress = $form->get('pAddress')->getData();
+            //create user
+            $userManager = $this->userManager;
+            $user = $userManager->createUser();
+            $user->setUsername(hash('ripemd160', $companyName.$companyEmail));
+            $user->setEmail($cpEmail);
+            $user->setPlainPassword($password);
+            $user->setEnabled(true);
+            $userManager->updateUser($user, true);
+            //create company
+            $company->setUser($user);
+            $company->setCompanyEmail($companyEmail);
+            $company->setCompanyName($companyName);
+            $company->setName($cpName);
+            $company->setEmail($cpEmail);
+            $company->setAddress($pAddress);
+            $em->persist($company);
             $em->flush();
 
-            $this->addFlash(
-                'notice',
-                'Company record is saved !'
-            );
+            $this->addFlash('success', 'Contact person and Company was saved');
         }
 
         return $this->render('company_profile/companyProfile.twig', [
             'form' => $form->createView(),
-            'seekers' => $allSeeker,
         ]);
-    }
-
-    /**
-     * check if contact person has aleady a company under his name
-     * @Route("/company/check", name="company_check", options={"expose"=true})
-     *
-     * @param Request $request
-     * @return JsonResponse
-     */
-    public function checkUserCompany(Request $request)
-    {
-        //get seeker obj
-        $seekerRepo = $this->getDoctrine()->getRepository(Seeker::class);
-        $seekerId = $request->request->get('seekerId');
-        $seeker = $seekerRepo->find($seekerId);
-
-        //check if user already register his company
-        $companyRepo = $this->getDoctrine()->getRepository(Company::class);
-        $checkCompany = $companyRepo->findOneBy([
-            'user' => $seeker->getUser(),
-        ]);
-
-        if (null == $checkCompany) {
-
-            return new JsonResponse([
-                //202
-                'statusCode' => Response::HTTP_ACCEPTED
-            ]);
-        } else {
-
-            return new JsonResponse([
-                //409
-                'statusCode' => Response::HTTP_CONFLICT
-            ]);
-        }
     }
 }

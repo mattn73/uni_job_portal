@@ -39,28 +39,18 @@ class SeekerController extends AbstractController
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
-
             $password = $form->get('password')->getData();
-
-
             $em =  $this->getDoctrine()->getManager();
-
             $userManager = $this->userManager;
-
             $user = $userManager->createUser();
-
             $user->setUsername(hash('ripemd160', $seeker->getFirstname() . $seeker->getLastName()));
             $user->setEmail($seeker->getEmail());
             $user->setPlainPassword($password);
             $user->setEnabled(true);
-
             $userManager->updateUser($user, true);
-
             $seeker->setUser($user);
-
             $em->persist($seeker);
             $em->flush();
-
         }
 
         return $this->render('seeker/register.html.twig', [
