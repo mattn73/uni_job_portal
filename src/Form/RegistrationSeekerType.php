@@ -76,22 +76,6 @@ class RegistrationSeekerType extends AbstractType
                     new NotBlank(array('message' => "This email is invalid")),
                 ]
             ])
-            ->add('hqa', TextType::class,[
-                'label' => 'Highest Qualification acheived*',
-                'constraints' => [
-                    new NotBlank(array('message' => "This email is invalid")),
-                    new Regex(array('pattern' => "/(\<\w*)((\s\/\>)|(.*\<\/\w*\>))/", 'match' => false, 'message' => "This field is invalid")),
-                    new Length(array('max'=>100,'maxMessage'=>'Cannot contain more than 100 Caractere'))
-                ]
-            ])
-            ->add('cv', TextType::class,[
-                'label' => 'CV*',
-                'constraints' => [
-                    new NotBlank(array('message' => "This email is invalid")),
-                    new Regex(array('pattern' => "/(\<\w*)((\s\/\>)|(.*\<\/\w*\>))/", 'match' => false, 'message' => "This field is invalid")),
-                    new Length(array('max'=>100,'maxMessage'=>'Cannot contain more than 100 Caractere'))
-                ]
-            ])
             ->add('password', RepeatedType::class, [
                 'mapped' => false,
                 'type' => PasswordType::class,
