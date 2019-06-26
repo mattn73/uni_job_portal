@@ -81,7 +81,7 @@ class SeekerController extends AbstractController
             $user->setEmail($seeker->getEmail());
             $user->setPlainPassword($password);
             $user->setEnabled(false);
-            $user->setRoles('ROLE_SEEKER');
+            $user->setRoles(array('ROLE_SEEKER'));
 
             if (null === $user->getConfirmationToken()) {
                 $user->setConfirmationToken(SELF::generateToken());
