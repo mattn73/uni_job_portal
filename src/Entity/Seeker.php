@@ -42,11 +42,14 @@ class Seeker
     private $email;
 
     /**
+     *
      * @ORM\Column(type="string", length=255)
      */
     private $address;
 
     /**
+     * @Asserts\Type(type="digit",
+     *               message="Contact can only number")
      * @ORM\Column(type="string", length=255)
      */
     private $contact;

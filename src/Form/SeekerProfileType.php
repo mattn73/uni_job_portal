@@ -39,7 +39,6 @@ class SeekerProfileType extends AbstractType
                 'label' => 'Lastname*',
                 'constraints' => [
                     new NotBlank(array('message' => "This lastname is invalid")),
-                    new Regex(array('pattern' => "/^[A-Za-z]+$/i", 'match' => false, 'message' => "This field is invalid")),
                     new Length(array('max'=>100,'maxMessage'=>'Cannot contain more than 100 Caractere'))
                 ]
             ])
@@ -47,7 +46,6 @@ class SeekerProfileType extends AbstractType
                 'label' => 'Firstname*',
                 'constraints' => [
                     new NotBlank(array('message' => "This fname is invalid")),
-                    new Regex(array('pattern' => "/(\<\w*)((\s\/\>)|(.*\<\/\w*\>))/", 'match' => false, 'message' => "This field is invalid")),
                     new Length(array('max'=>100,'maxMessage'=>'Cannot contain more than 100 Caractere'))
                 ]
             ])
@@ -60,11 +58,11 @@ class SeekerProfileType extends AbstractType
                 ]
             ])
 
-            ->add('contact', TelType::class,[
+            ->add('contact', TextType::class,[
                 'label' => 'Contact*',
                 'constraints' => [
                     new NotBlank(array('message' => "This email is invalid")),
-                    new Length(array('max'=>100,'maxMessage'=>'Cannot contain more than 100 Caractere'))
+                    new Length(array('max'=>10,'maxMessage'=>'Cannot contain more than 100 Caractere'))
                 ]
             ])
             ->add('dob', BirthdayType::class,[
