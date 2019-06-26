@@ -75,6 +75,10 @@ class CompanyProfileController extends AbstractController
      */
     public function companyRegister(Request $request, \Swift_Mailer $mailer, LoggerInterface $logger)
     {
+        if ($this->container->get('security.authorization_checker')->isGranted('ROLE_USER')) {
+            return new RedirectResponse('/');
+        }
+
         $em = $this->getDoctrine()->getManager();
         //form
         $form = $this->createForm(CompanyProfileType::class);
