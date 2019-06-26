@@ -62,7 +62,7 @@ class JobController extends AbstractController
         $user = $this->getUser();
         $company = $user->getCompany();
         $jobRepo = $this->getDoctrine()->getRepository(JobPosting::class);
-        $jobs = $jobRepo->findAllJobPostings($company);
+        $jobs = $jobRepo->findAllJobPostingsByCompany($company);
 
         return $this->render('job/listJob.twig', [
             'jobs' => $jobs
