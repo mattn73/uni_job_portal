@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\User;
 use http\Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
@@ -9,6 +10,8 @@ use Symfony\Component\HttpFoundation\Request;
 use App\Entity\Seeker;
 use App\Form\RegistrationSeekerType;
 use FOS\UserBundle\Model\UserManagerInterface;
+use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class SeekerController extends AbstractController
 {
@@ -29,11 +32,33 @@ class SeekerController extends AbstractController
         ]);
     }
 
+    /**
+     * @Route("/confirm-account/{token}", name="confirm_password")
+     */
+    public function confirmUser($token)
+    {
+        $userManager = $this->userManager;
+
+        $userRepo = $this->getDoctrine()->getRepository(User::class);
+        $user = $userRepo->findOneBy(array('confirmationToken'=> $token));
+
+        if(null  === $user){
+            throw $this->createNotFoundException('Invalid Token');
+        }
+        $user->setEnabled(true);
+
+        $userManager->updateUser($user, true);
+
+        return $this->render('user/confirmationSucess.html.twig', [
+            'email' => $user->getEmail(),
+        ]);
+    }
+
 
     /**
      * @Route("/seeker/register", name="seeker_registration")
      */
-    public function registrationSeeker(Request $request)
+    public function registrationSeeker(Request $request,\Swift_Mailer $mailer, LoggerInterface $logger)
     {
         $seeker = new Seeker();
         $form = $this->createForm(RegistrationSeekerType::class, $seeker);
@@ -42,7 +67,6 @@ class SeekerController extends AbstractController
         if ($form->isSubmitted() && $form->isValid()) {
 
             $password = $form->get('password')->getData();
-
 
             $em = $this->getDoctrine()->getManager();
 
@@ -59,14 +83,15 @@ class SeekerController extends AbstractController
                 $user->setConfirmationToken(SELF::generateToken());
             }
 
-            $userManager->updateUser($user, true);
-            
+
             try {
-                SELF::sendConfirmationMail($user, $seeker->getFirstname());
+                $this->sendConfirmationMail($user, $seeker->getFirstname(),$mailer,  $logger);
             } catch (\Exception $e) {
-
-
+                $logger->error($e->getMessage());
             }
+
+            $userManager->updateUser($user, true);
+
             $seeker->setUser($user);
 
             $em->persist($seeker);
@@ -91,23 +116,18 @@ class SeekerController extends AbstractController
     /**
      * @param $user
      * @param $name
-     * @param \Swift_Mailer $mailer
-     * @param \Twig\Environment $templating
      * @throws \Exception
      */
-    public static function sendConfirmationMail($user, $name)
+    public function sendConfirmationMail($user, $name, \Swift_Mailer $mailer, LoggerInterface $logger)
     {
-        if (null !== $user && null === $user->getConfirmationToken()) {
-            $mailer = new \Swift_Mailer;
-            $templating = new \Twig\Environment;
-
+        if (null !== $user && null !== $user->getConfirmationToken()) {
             $url = SELF::generateEmailUrl($user->getConfirmationToken());
 
             $message = (new \Swift_Message('Confirmation Email'))
                 ->setFrom('send@jobportal.com')
                 ->setTo($user->getEmail())
                 ->setBody(
-                    $templating->renderView(
+                    $this->renderView(
                     // templates/emails/registration.html.twig
                         'emails/confirmation_account.html.twig',
                         array('url' => $url,
@@ -120,8 +140,7 @@ class SeekerController extends AbstractController
             try {
                 $mailer->send($message);
             } catch (\Exception $e) {
-
-
+                $logger->error($e->getMessage());
             }
 
         } else {
@@ -136,7 +155,7 @@ class SeekerController extends AbstractController
     public static function generateEmailUrl($token)
     {
         $url = $_ENV['ROOT_URL'];
-        return $url . 'confirm-account/' . $token;
+        return $url . '/confirm-account/' . $token;
     }
 }
 
