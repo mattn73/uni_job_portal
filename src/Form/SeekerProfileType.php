@@ -88,20 +88,14 @@ class SeekerProfileType extends AbstractType
                     new File([
                         'maxSize' => '2M',
                         'mimeTypes' => [
-                            'image/png',
-                            'image/jpeg',
                             'application/pdf',
                             'application/x-pdf',
+                            'application/msword',
+                            'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
                         ],
-                        'mimeTypesMessage' => 'Veuillez saisir une image valide',
+                        'mimeTypesMessage' => 'Veuillez saisir une cv en pdf ou docx valide',
                         'maxSizeMessage' => 'L\'image est tro lourd',
                     ]),
-                    new Image([
-                        'minWidth'  => 45,
-                        'maxWidth'  => 800,
-                        'minHeight' => 45,
-                        'maxHeight' => 800,
-                    ])
                 ],
             ))
             ->add('submit', SubmitType::class, array(
