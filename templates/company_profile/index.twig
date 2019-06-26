@@ -1,4 +1,51 @@
 {% extends 'base.html.twig' %}
+{% block title %}Job Portal - Company Profile{% endblock %}
 {% block body %}
     <a href="{{ path('app_logout') }}">Log Out</a>
+    <div class="container">
+        <ul>
+            <li>Company Name => {{ company.companyName }}</li>
+            <li>Company Email => {{ company.companyEmail }}</li>
+            <li>Contact Person Name => {{ company.name }}</li>
+            <li>Contact Person Email => {{ company.email }}</li>
+            <li>Contact Person Address => {{ company.address }}</li>
+        </ul>
+        <br><br>
+
+        {# Flash message #}
+        {% for message in app.flashes('update') %}
+            <div class="alert alert-success">
+                {{ message }}
+            </div>
+        {% endfor %}
+
+        {{ form_start(form, {'attr': {'id': 'frmUpdateCompany', 'novalidate':'true'}}) }}
+
+        <div class="form-group cName">
+            {{ form_label(form.companyName) }}
+            {{ form_widget(form.companyName, {'attr': {'value': company.companyName }}) }}
+            {{ form_errors(form.companyName) }}
+        </div>
+
+        <div class="form-group cpname">
+            {{ form_label(form.cpName) }}
+            {{ form_widget(form.cpName, {'attr': {'value': company.name }}) }}
+            {{ form_errors(form.cpName) }}
+        </div>
+
+        <div class="form-group cpEmail">
+            {{ form_label(form.cpEmail) }}
+            {{ form_widget(form.cpEmail, {'attr': {'value': company.companyEmail }}) }}
+            {{ form_errors(form.cpEmail) }}
+        </div>
+
+        <div class="form-group pAddress">
+            {{ form_label(form.pAddress) }}
+            {{ form_widget(form.pAddress, {'attr': {'value': company.address }}) }}
+            {{ form_errors(form.pAddress) }}
+        </div>
+
+        {{ form_row(form.update) }}
+        {{ form_end(form) }}
+    </div>
 {% endblock %}

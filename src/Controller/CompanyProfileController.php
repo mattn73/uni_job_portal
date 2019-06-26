@@ -5,6 +5,7 @@ namespace App\Controller;
 use App\Entity\Company;
 use App\Entity\Seeker;
 use App\Entity\User;
+use App\Form\CompanyUpdateProfileType;
 use Swift_Mailer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -26,11 +27,43 @@ class CompanyProfileController extends AbstractController
 
     /**
      * @Route("/company/index", name="company_index", options={"expose"=true})
+     * @param Request $request
      * @return Response
      */
-    public function companyIndex()
+    public function companyIndex(Request $request)
     {
-        return $this->render('company_profile/index.twig');
+        //get current user logged in
+        $em = $this->getDoctrine()->getManager();
+        $user = $this->getUser();
+        $company = $this->getDoctrine()->getRepository(Company::class)->findOneBy([
+            'user' => $user
+        ]);
+
+        //form to update
+        $form = $this->createForm(CompanyUpdateProfileType::class);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $companyEmail = $form->get('cpEmail')->getData();
+            $companyName = $form->get('companyName')->getData();
+            $cpName = $form->get('cpName')->getData();
+            $pAddress = $form->get('pAddress')->getData();
+
+            //update company
+            $company->setCompanyEmail($companyEmail);
+            $company->setCompanyName($companyName);
+            $company->setName($cpName);
+            $company->setAddress($pAddress);
+            $em->persist($company);
+            $em->flush();
+
+            $this->addFlash('update', 'Contact person and Company was updated');
+        }
+
+        return $this->render('company_profile/index.twig', [
+            'company' => $company,
+            'form' => $form->createView(),
+        ]);
     }
 
     /**
@@ -60,7 +93,7 @@ class CompanyProfileController extends AbstractController
             $userManager = $this->userManager;
             $user = $userManager->createUser();
             $user->setUsername(hash('ripemd160', $companyName . $companyEmail));
-            $user->setEmail($cpEmail);
+            $user->setEmail($companyEmail);
             $user->setPlainPassword($password);
             $user->setEnabled(false);
             $user->setRoles(['ROLE_COMPANY']);
