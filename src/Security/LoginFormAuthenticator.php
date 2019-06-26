@@ -19,6 +19,8 @@ use Symfony\Component\Security\Csrf\CsrfToken;
 use Symfony\Component\Security\Csrf\CsrfTokenManagerInterface;
 use Symfony\Component\Security\Guard\Authenticator\AbstractFormLoginAuthenticator;
 use Symfony\Component\Security\Http\Util\TargetPathTrait;
+use App\Entity\Company;
+use App\Entity\Seeker;
 
 class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
 {
@@ -86,7 +88,24 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
             return new RedirectResponse($targetPath);
         }
 
-         return new RedirectResponse($this->router->generate('app_login'));
+        //get user obj
+        $user = $token->getUser();
+
+        //check user is a seeker
+        $seeker = $this->entityManager->getRepository(Seeker::class)->findOneBy([
+            'user' => $user
+        ]);
+
+        //check if user is a contact person
+        $cPerson = $this->entityManager->getRepository(Company::class)->findOneBy([
+            'user' => $user
+        ]);
+
+        if (null != $seeker) {
+            return new RedirectResponse($this->router->generate('seeker'));
+        } elseif(null != $cPerson){
+            return new RedirectResponse($this->router->generate('company_index'));
+        }
     }
 
     protected function getLoginUrl()
