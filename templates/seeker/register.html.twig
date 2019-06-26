@@ -1,40 +1,37 @@
 {% extends 'base.html.twig' %}
 
-
-{% block title %}Hello SeekerController!{% endblock %}
+{% block title %}Register !{% endblock %}
 
 {% block body %}
 
     {{ form_start(form, {'attr': {'id': 'registration-form', 'novalidate':'true'}}) }}
 
-    <div class="form-group name">
+    <div class="form-group">
         {{ form_label(form.title) }}
         {{ form_widget(form.title) }}
-        {{- form_errors(form.title) -}}
+
     </div>
-    <div class="form-group surname">
+    <div class="form-group">
         {{ form_label(form.lastName) }}
         {{ form_widget(form.lastName) }}
-        {{- form_errors(form.lastName) -}}
+
 
     </div>
-    <div class="form-group enterprise">
+    <div class="form-group">
         {{ form_label(form.firstname) }}
         {{ form_widget(form.firstname) }}
-        {{- form_errors(form.firstname) -}}
-    </div>
-    <div class="form-group siren-siret">
-        {{ form_label(form.address) }}
-        {{ form_widget(form.address) }}
-        {{- form_errors(form.address) -}}
 
     </div>
-    <div class="form-group address">
+    <div class="form-group">
+        {{ form_label(form.address) }}
+        {{ form_widget(form.address) }}
+
+    </div>
+    <div class="form-group">
         {{ form_label(form.contact) }}
         {{ form_widget(form.contact) }}
-        {{- form_errors(form.contact) -}}
     </div>
-    <div class="form-group city">
+    <div class="form-group">
         {{ form_label(form.dob) }}
         {{ form_widget(form.dob) }}
         {{- form_errors(form.dob) -}}
