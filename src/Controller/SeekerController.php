@@ -9,6 +9,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use App\Entity\Seeker;
 use App\Form\RegistrationSeekerType;
 use FOS\UserBundle\Model\UserManagerInterface;
@@ -42,9 +43,9 @@ class SeekerController extends AbstractController
         $userManager = $this->userManager;
 
         $userRepo = $this->getDoctrine()->getRepository(User::class);
-        $user = $userRepo->findOneBy(array('confirmationToken'=> $token));
+        $user = $userRepo->findOneBy(array('confirmationToken' => $token));
 
-        if(null  === $user){
+        if (null === $user) {
             throw $this->createNotFoundException('Invalid Token');
         }
         $user->setEnabled(true);
@@ -58,11 +59,14 @@ class SeekerController extends AbstractController
 
 
     /**
-     * @IsGranted("IS_AUTHENTICATED_ANONYMOUSLY")
      * @Route("/register/seeker", name="seeker_registration")
      */
-    public function registrationSeeker(Request $request,\Swift_Mailer $mailer, LoggerInterface $logger)
+    public function registrationSeeker(Request $request, \Swift_Mailer $mailer, LoggerInterface $logger)
     {
+        if ($this->container->get('security.authorization_checker')->isGranted('ROLE_USER')) {
+            return new RedirectResponse('/');
+        }
+
         $seeker = new Seeker();
         $form = $this->createForm(RegistrationSeekerType::class, $seeker);
 
@@ -89,7 +93,7 @@ class SeekerController extends AbstractController
 
 
             try {
-                $this->sendConfirmationMail($user, $seeker->getFirstname(),$mailer,  $logger);
+                $this->sendConfirmationMail($user, $seeker->getFirstname(), $mailer, $logger);
             } catch (\Exception $e) {
                 $logger->error($e->getMessage());
                 $this->addFlash('fail', 'saved Fail');
@@ -125,22 +129,24 @@ class SeekerController extends AbstractController
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
 
-            $file = $seeker->getCv();
-            $fileName = $this->generateUniqueFileName().'.'.$file->guessExtension();
+            /** @var Symfony\Component\HttpFoundation\File\UploadedFile $file */
+            $file = $form->get('cv')->getData();
+            if (!is_null($file)) {
+                $fileName = $this->generateUniqueFileName() . '.' . $file->guessExtension();
 
-            try {
-                $file->move(
-                    $_ENV('UPLOAD_DIRECTORY'),
-                    $fileName
-                );
-            } catch (FileException $e) {
-                $logger->error($e->getMessage());
-                $this->addFlash('fail', 'saved Fail');
+                try {
+                    $file->move(
+                        $_ENV['UPLOAD_DIRECTORY'],
+                        $fileName
+                    );
+                } catch (FileException $e) {
+                    $logger->error($e->getMessage());
+                    $this->addFlash('fail', 'saved Fail');
 
+                }
+
+                $seeker->setCv($fileName);
             }
-
-            $seeker->setCv($fileName);
-
             $em = $this->getDoctrine()->getManager();
 
             $em->persist($seeker);
@@ -154,7 +160,6 @@ class SeekerController extends AbstractController
             'form' => $form->createView(),
         ]);
     }
-
 
 
     /**
@@ -209,6 +214,14 @@ class SeekerController extends AbstractController
     {
         $url = $_ENV['ROOT_URL'];
         return $url . '/confirm-account/' . $token;
+    }
+
+    /**
+     * @return string
+     */
+    private function generateUniqueFileName()
+    {
+        return md5(uniqid());
     }
 }
 
