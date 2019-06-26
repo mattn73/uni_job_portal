@@ -23,11 +23,20 @@ class CompanyProfileController extends AbstractController
     }
 
     /**
+     * @Route("/company/index", name="company_index", options={"expose"=true})
+     * @return Response
+     */
+    public function companyIndex()
+    {
+        return $this->render('company_profile/index.twig');
+    }
+
+    /**
      * @Route("/company/register", name="company_register", options={"expose"=true})
      * @param Request $request
      * @return Response
      */
-    public function index(Request $request)
+    public function companyRegister(Request $request)
     {
         $em = $this->getDoctrine()->getManager();
         //form
