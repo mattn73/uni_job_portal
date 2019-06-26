@@ -2,6 +2,7 @@
 // src/Security/LoginFormAuthenticator.php
 namespace App\Security;
 
+use App\Entity\LoginHistory;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -10,6 +11,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 use Symfony\Component\Security\Core\Exception\InvalidCsrfTokenException;
 use Symfony\Component\Security\Core\Security;
@@ -103,9 +105,29 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
 
         if (null != $seeker) {
             return new RedirectResponse($this->router->generate('seeker'));
-        } elseif(null != $cPerson){
+        } elseif (null != $cPerson) {
             return new RedirectResponse($this->router->generate('company_index'));
         }
+    }
+
+    public function onAuthenticationFailure(Request $request, AuthenticationException $exception)
+    {
+        $userIp = $request->getClientIp();
+        $lHistory = new LoginHistory();
+        $lHistory->setStatus(false);
+        $lHistory->setUserIp($userIp);
+        $this->entityManager->persist($lHistory);
+        $this->entityManager->flush();
+
+        $checkAttempt = $this->entityManager->getRepository(LoginHistory::class)->findBy([
+            'UserIp' => $userIp
+        ]);
+
+        if (count($checkAttempt) > 3) {
+
+        }
+
+        return new RedirectResponse($this->router->generate('app_login'));
     }
 
     protected function getLoginUrl()

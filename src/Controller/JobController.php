@@ -12,13 +12,15 @@ use Symfony\Component\HttpFoundation\Response;
 class JobController extends AbstractController
 {
     /**
-     * @Route("/job/create", name="job_create")
+     * @Route("/company/job/create", name="job_create")
      * @param Request $request
-     * @return \Symfony\Component\HttpFoundation\Response
+     * @return Response
      */
     public function createJob(Request $request)
     {
         $em = $this->getDoctrine()->getManager();
+        $user = $this->getUser();
+        $company = $user->getCompany();
 
         //form to create job
         $form = $this->createForm(CreateJobType::class);
@@ -36,14 +38,34 @@ class JobController extends AbstractController
             $job->setJobReference($jReference);
             $job->setClosingDate($cDate);
             $job->setJobDescr($jDesc);
+            $job->setCompany($company);
 
             //save db
             $em->persist($job);
             $em->flush();
+
+            $this->addFlash('success', 'Job is saved');
         }
 
         return $this->render('job/createJob.twig', [
             'form' => $form->createView()
+        ]);
+    }
+
+    /**
+     * list all jobs created by current user
+     *
+     * @Route("/company/job", name="job_list")
+     */
+    public function listJob()
+    {
+        $user = $this->getUser();
+        $company = $user->getCompany();
+        $jobRepo = $this->getDoctrine()->getRepository(JobPosting::class);
+        $jobs = $jobRepo->findAllJobPostingsByCompany($company);
+
+        return $this->render('job/listJob.twig', [
+            'jobs' => $jobs
         ]);
     }
 }

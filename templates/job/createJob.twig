@@ -3,6 +3,14 @@
 {% block title %}Job Creation{% endblock %}
 
 {% block body %}
+
+    {# Flash message #}
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success">
+            {{ message }}
+        </div>
+    {% endfor %}
+
     {{ form_start(form, {'attr': {'id': 'frmJobCreate', 'novalidate':'true'}}) }}
 
     <div class="form-group jTitle">

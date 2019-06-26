@@ -47,4 +47,30 @@ class JobPostingRepository extends ServiceEntityRepository
         ;
     }
     */
+
+    /**
+     * @param $company
+     * @return mixed
+     */
+    public function findAllJobPostingsByCompany($company)
+    {
+        return $this->createQueryBuilder('j')
+            ->leftJoin('j.company', 'jc')
+            ->addSelect('jc')
+            ->andWhere('j.company = :company')
+            ->setParameter('company', $company)
+            ->getQuery()
+            ->getResult()
+            ;
+    }
+
+    public function findAllValidatedJobs()
+    {
+        return $this->createQueryBuilder('j')
+            ->andWhere('j.ClosingDate >= :cDate')
+            ->setParameter('cDate', new \DateTime(), \Doctrine\DBAL\Types\Type::DATETIME)
+            ->getQuery()
+            ->getResult()
+            ;
+    }
 }
