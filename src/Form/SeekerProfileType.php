@@ -4,8 +4,11 @@ namespace App\Form;
 
 use App\Entity\Seeker;
 use Symfony\Component\Form\AbstractType;
+use Symfony\Component\Form\Extension\Core\Type\BirthdayType;
 use Symfony\Component\Form\Extension\Core\Type\ChoiceType;
+use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Form\Extension\Core\Type\TextType;
+use Symfony\Component\Form\Extension\Core\Type\TelType;
 use Symfony\Component\Form\FormBuilderInterface;
 use Symfony\Component\OptionsResolver\OptionsResolver;
 use Symfony\Component\Validator\Constraints\Length;
@@ -14,6 +17,7 @@ use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\Constraints\File;
 use Symfony\Component\Form\Extension\Core\Type\FileType;
 use Symfony\Component\Validator\Constraints\Image;
+use Symfony\Component\Form\FormInterface;
 
 
 class SeekerProfileType extends AbstractType
@@ -47,11 +51,30 @@ class SeekerProfileType extends AbstractType
                     new Length(array('max'=>100,'maxMessage'=>'Cannot contain more than 100 Caractere'))
                 ]
             ])
-            ->add('address')
-            ->add('contact')
-            ->add('dob')
-            ->add('firstname', TextType::class,[
-                'label' => 'Firstname*',
+            ->add('address', TextType::class,[
+                'label' => 'Address*',
+                'constraints' => [
+                    new NotBlank(array('message' => "This email is invalid")),
+                    new Regex(array('pattern' => "/(\<\w*)((\s\/\>)|(.*\<\/\w*\>))/", 'match' => false, 'message' => "This field is invalid")),
+                    new Length(array('max'=>100,'maxMessage'=>'Cannot contain more than 100 Caractere'))
+                ]
+            ])
+
+            ->add('contact', TelType::class,[
+                'label' => 'Contact*',
+                'constraints' => [
+                    new NotBlank(array('message' => "This email is invalid")),
+                    new Length(array('max'=>100,'maxMessage'=>'Cannot contain more than 100 Caractere'))
+                ]
+            ])
+            ->add('dob', BirthdayType::class,[
+                'label' => 'Date of Birth*',
+                'constraints' => [
+                    new NotBlank(array('message' => "This email is invalid")),
+                ]
+            ])
+            ->add('hqa', TextType::class,[
+                'label' => 'Highest Education Achieved*',
                 'constraints' => [
                     new NotBlank(array('message' => "This fname is invalid")),
                     new Regex(array('pattern' => "/(\<\w*)((\s\/\>)|(.*\<\/\w*\>))/", 'match' => false, 'message' => "This field is invalid")),
@@ -86,8 +109,9 @@ class SeekerProfileType extends AbstractType
                     ])
                 ],
             ))
-
-            ->add('skill')
+            ->add('submit', SubmitType::class, array(
+                'label' => 'Submit',
+            ))
         ;
     }
 
@@ -98,8 +122,8 @@ class SeekerProfileType extends AbstractType
             'validation_groups' => function (FormInterface $form) {
                 $data = $form->getData();
 
-                if ($data->getFile()) {
-                    if (exif_imagetype($data->getFile())) {
+                if ($data->getCv()) {
+                    if (exif_imagetype($data->getCv())) {
                         return ['fiche', 'image'];
                     }
                 }

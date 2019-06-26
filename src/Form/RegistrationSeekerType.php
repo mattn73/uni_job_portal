@@ -63,7 +63,7 @@ class RegistrationSeekerType extends AbstractType
                     new Length(array('max'=>100,'maxMessage'=>'Cannot contain more than 100 Caractere'))
                 ]
             ])
-            ->add('contact', TextType::class,[
+            ->add('contact', TelType::class,[
                 'label' => 'Contact*',
                 'constraints' => [
                     new NotBlank(array('message' => "This email is invalid")),

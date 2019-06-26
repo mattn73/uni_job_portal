@@ -92,6 +92,7 @@ class SeekerController extends AbstractController
                 $this->sendConfirmationMail($user, $seeker->getFirstname(),$mailer,  $logger);
             } catch (\Exception $e) {
                 $logger->error($e->getMessage());
+                $this->addFlash('fail', 'saved Fail');
             }
 
             $userManager->updateUser($user, true);
@@ -101,6 +102,7 @@ class SeekerController extends AbstractController
             $em->persist($seeker);
             $em->flush();
 
+            $this->addFlash('success', 'Profile was saved');
         }
 
         return $this->render('seeker/register.html.twig', [
@@ -112,7 +114,7 @@ class SeekerController extends AbstractController
     /**
      * @Route("/seeker/profile", name="seeker_profile")
      */
-    public function seekerProfile()
+    public function seekerProfile(Request $request, LoggerInterface $logger)
     {
         $seekerRepo = $this->getDoctrine()->getRepository(Seeker::class);
 
@@ -120,8 +122,36 @@ class SeekerController extends AbstractController
 
         $form = $this->createForm(SeekerProfileType::class, $seeker);
 
+        $form->handleRequest($request);
+        if ($form->isSubmitted() && $form->isValid()) {
+
+            $file = $seeker->getCv();
+            $fileName = $this->generateUniqueFileName().'.'.$file->guessExtension();
+
+            try {
+                $file->move(
+                    $_ENV('UPLOAD_DIRECTORY'),
+                    $fileName
+                );
+            } catch (FileException $e) {
+                $logger->error($e->getMessage());
+                $this->addFlash('fail', 'saved Fail');
+
+            }
+
+            $seeker->setCv($fileName);
+
+            $em = $this->getDoctrine()->getManager();
+
+            $em->persist($seeker);
+            $em->flush();
+
+            $this->addFlash('success', 'Profile was saved');
+
+        }
+
         return $this->render('seeker/profile.html.twig', [
-            'controller_name' => 'SeekerController',
+            'form' => $form->createView(),
         ]);
     }
 
