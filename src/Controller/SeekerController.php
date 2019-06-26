@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Entity\User;
 use http\Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
@@ -10,6 +11,7 @@ use App\Entity\Seeker;
 use App\Form\RegistrationSeekerType;
 use FOS\UserBundle\Model\UserManagerInterface;
 use Psr\Log\LoggerInterface;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 class SeekerController extends AbstractController
 {
@@ -27,6 +29,28 @@ class SeekerController extends AbstractController
     {
         return $this->render('seeker/index.html.twig', [
             'controller_name' => 'SeekerController',
+        ]);
+    }
+
+    /**
+     * @Route("/confirm-account/{token}", name="confirm_password")
+     */
+    public function confirmUser($token)
+    {
+        $userManager = $this->userManager;
+
+        $userRepo = $this->getDoctrine()->getRepository(User::class);
+        $user = $userRepo->findOneBy(array('confirmationToken'=> $token));
+
+        if(null  === $user){
+            throw $this->createNotFoundException('Invalid Token');
+        }
+        $user->setEnabled(true);
+
+        $userManager->updateUser($user, true);
+
+        return $this->render('user/confirmationSucess.html.twig', [
+            'email' => $user->getEmail(),
         ]);
     }
 
@@ -131,7 +155,7 @@ class SeekerController extends AbstractController
     public static function generateEmailUrl($token)
     {
         $url = $_ENV['ROOT_URL'];
-        return $url . 'confirm-account/' . $token;
+        return $url . '/confirm-account/' . $token;
     }
 }
 
