@@ -3,7 +3,9 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Form\SeekerProfileType;
 use http\Exception;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
 use Symfony\Component\HttpFoundation\Request;
@@ -56,7 +58,8 @@ class SeekerController extends AbstractController
 
 
     /**
-     * @Route("/seeker/register", name="seeker_registration")
+     * @IsGranted("IS_AUTHENTICATED_ANONYMOUSLY")
+     * @Route("/register/seeker", name="seeker_registration")
      */
     public function registrationSeeker(Request $request,\Swift_Mailer $mailer, LoggerInterface $logger)
     {
@@ -78,6 +81,7 @@ class SeekerController extends AbstractController
             $user->setEmail($seeker->getEmail());
             $user->setPlainPassword($password);
             $user->setEnabled(false);
+            $user->setRoles('ROLE_SEEKER');
 
             if (null === $user->getConfirmationToken()) {
                 $user->setConfirmationToken(SELF::generateToken());
@@ -103,6 +107,25 @@ class SeekerController extends AbstractController
             'form' => $form->createView(),
         ]);
     }
+
+
+    /**
+     * @Route("/seeker/profile", name="seeker_profile")
+     */
+    public function seekerProfile()
+    {
+        $seekerRepo = $this->getDoctrine()->getRepository(Seeker::class);
+
+        $seeker = $seekerRepo->findOneBy(array('user' => $this->getUser()));
+
+        $form = $this->createForm(SeekerProfileType::class, $seeker);
+
+        return $this->render('seeker/profile.html.twig', [
+            'controller_name' => 'SeekerController',
+        ]);
+    }
+
+
 
     /**
      * @return string

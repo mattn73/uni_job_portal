@@ -26,8 +26,14 @@ security:
     # Note: Only the *first* access control that matches will be used
     access_control:
         # - { path: ^/admin, roles: ROLE_ADMIN }
-        # - { path: ^/profile, roles: ROLE_USER }
+          - { path: ^/seeker/profile, roles: ROLE_SEEKER }
+          - { path: ^/company/, roles: ROLE_COMPANY }
           - { path: ^/login$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
 
     encoders:
         FOS\UserBundle\Model\UserInterface: sha512
+
+    role_hierarchy:
+        ROLE_ADMIN: ROLE_USER
+        ROLE_SEEKER: ROLE_USER
+        ROLE_COMPANY: ROLE_USER
