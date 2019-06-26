@@ -29,7 +29,7 @@ class SeekerController extends AbstractController
      */
     public function index()
     {
-        return $this->render('seeker/index.twig', [
+        return $this->render('seeker/createJob.twig', [
             'controller_name' => 'SeekerController',
         ]);
     }

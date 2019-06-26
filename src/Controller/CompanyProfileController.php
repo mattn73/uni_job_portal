@@ -60,7 +60,7 @@ class CompanyProfileController extends AbstractController
             $this->addFlash('update', 'Contact person and Company was updated');
         }
 
-        return $this->render('company_profile/index.twig', [
+        return $this->render('company_profile/createJob.twig', [
             'company' => $company,
             'form' => $form->createView(),
         ]);

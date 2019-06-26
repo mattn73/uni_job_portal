@@ -1,0 +1,30 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Job Creation{% endblock %}
+
+{% block body %}
+    {{ form_start(form, {'attr': {'id': 'frmJobCreate', 'novalidate':'true'}}) }}
+
+    <div class="form-group jTitle">
+        {{ form_label(form.jTitle) }}
+        {{ form_widget(form.jTitle) }}
+    </div>
+
+    <div class="form-group jReference">
+        {{ form_label(form.jReference) }}
+        {{ form_widget(form.jReference) }}
+    </div>
+
+    <div class="form-group cDate">
+        {{ form_label(form.cDate) }}
+        {{ form_widget(form.cDate) }}
+    </div>
+
+    <div class="form-group jDesc">
+        {{ form_label(form.jDesc) }}
+        {{ form_widget(form.jDesc) }}
+    </div>
+
+    {{ form_row(form.create) }}
+    {{ form_end(form) }}
+{% endblock %}
