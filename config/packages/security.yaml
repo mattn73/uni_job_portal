@@ -28,6 +28,7 @@ security:
         # - { path: ^/admin, roles: ROLE_ADMIN }
           - { path: ^/seeker/profile, roles: ROLE_SEEKER }
           - { path: ^/company/, roles: ROLE_COMPANY }
+          - { path: ^/register/, roles: IS_AUTHENTICATED_ANONYMOUSLY }
           - { path: ^/login$, roles: IS_AUTHENTICATED_ANONYMOUSLY }
 
     encoders:
