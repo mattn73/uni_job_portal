@@ -1,0 +1,39 @@
+<div class="container " id="skill-container">
+    <h2>Striped Rows</h2>
+    <p>Skills :</p>
+    <table class="table table-striped">
+        <thead>
+        <tr>
+            <th>Name</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% if skills is empty %}
+            <tr>
+                <td>Non Skill</td>
+            </tr>
+        {% endif %}
+
+        {% for skill in skills %}
+            <tr>
+                <td>{{ skill }}</td>
+            </tr>
+        {% endfor %}
+        <tr>
+            <td>
+                {{ form_start(skillForm, {'attr': {'id': 'skill-add-form', 'novalidate':'true'}}) }}
+                {{ form_errors(skillForm.name) }}
+                <div class="input-group">
+                    {{ form_widget(skillForm.name) }}
+                    <div class="input-group-append">
+                        {{ form_widget(skillForm.submit) }}
+                    </div>
+                </div>
+                {{ form_end(skillForm) }}
+
+            </td>
+        </tr>
+
+        </tbody>
+    </table>
+</div>

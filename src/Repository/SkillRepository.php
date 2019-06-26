@@ -36,15 +36,17 @@ class SkillRepository extends ServiceEntityRepository
     }
     */
 
-    /*
-    public function findOneBySomeField($value): ?Skill
+
+    public function findBySeeker($value): ?Skill
     {
         return $this->createQueryBuilder('s')
-            ->andWhere('s.exampleField = :val')
-            ->setParameter('val', $value)
+            ->andWhere('s.seekers = :seeker')
+            ->setParameter('seeker', $value)
             ->getQuery()
-            ->getOneOrNullResult()
+            ->getResult()
         ;
     }
-    */
+
+
+
 }

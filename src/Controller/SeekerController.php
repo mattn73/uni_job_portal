@@ -2,8 +2,10 @@
 
 namespace App\Controller;
 
+use App\Entity\Skill;
 use App\Entity\User;
 use App\Form\SeekerProfileType;
+use App\Form\SkillType;
 use http\Exception;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -125,6 +127,9 @@ class SeekerController extends AbstractController
         $seeker = $seekerRepo->findOneBy(array('user' => $this->getUser()));
 
         $form = $this->createForm(SeekerProfileType::class, $seeker);
+        $skillForm = $this->createForm(SkillType::class);
+
+        $skill = $seeker->getSkill();
 
         $form->handleRequest($request);
         if ($form->isSubmitted() && $form->isValid()) {
@@ -158,8 +163,37 @@ class SeekerController extends AbstractController
 
         return $this->render('seeker/profile.html.twig', [
             'form' => $form->createView(),
+            'skills' => $skill,
+            'skillForm' => $skillForm->createView(),
         ]);
     }
+
+    /**
+     * @Route("/skill/add", name="add_skill")
+     */
+    public function AddSkill(Request $request, LoggerInterface $logger)
+    {
+
+        $skillForm = $this->createForm(SkillType::class);
+        $skillForm->handleRequest($request);
+        $seekerRepo = $this->getDoctrine()->getRepository(Seeker::class);
+        $seeker = $seekerRepo->findOneBy(array('user' => $this->getUser()));
+        $skill = $seeker->getSkill();
+
+        if ($skillForm->isSubmitted() && $skillForm->isValid()) {
+
+
+//add function to add skill and add seeker to it
+
+
+        }
+        return $this->render('seeker/partial/skill.html.twig', [
+            'skillForm' => $skillForm->createView(),
+            'skills' => $skill,
+        ]);
+    }
+
+
 
 
     /**
