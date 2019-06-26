@@ -39,7 +39,7 @@ class SeekerProfileType extends AbstractType
                 'label' => 'Lastname*',
                 'constraints' => [
                     new NotBlank(array('message' => "This lastname is invalid")),
-                    new Regex(array('pattern' => "/(\<\w*)((\s\/\>)|(.*\<\/\w*\>))/", 'match' => false, 'message' => "This field is invalid")),
+                    new Regex(array('pattern' => "/^[A-Za-z]+$/i", 'match' => false, 'message' => "This field is invalid")),
                     new Length(array('max'=>100,'maxMessage'=>'Cannot contain more than 100 Caractere'))
                 ]
             ])
@@ -85,7 +85,7 @@ class SeekerProfileType extends AbstractType
             ->add('cv', FileType::class, array(
                 'label' => false,
                 'multiple' => false,
-                'data_class' => null,
+                "mapped" => false,
                 'constraints' => [
                     new File([
                         'maxSize' => '2M',
@@ -97,15 +97,12 @@ class SeekerProfileType extends AbstractType
                         ],
                         'mimeTypesMessage' => 'Veuillez saisir une image valide',
                         'maxSizeMessage' => 'L\'image est tro lourd',
-                        'groups'=> 'fiche',
                     ]),
-                    new NotBlank(array('groups'=> 'file')),
                     new Image([
                         'minWidth'  => 45,
                         'maxWidth'  => 800,
                         'minHeight' => 45,
                         'maxHeight' => 800,
-                        'groups'    => 'image'
                     ])
                 ],
             ))
@@ -119,16 +116,6 @@ class SeekerProfileType extends AbstractType
     {
         $resolver->setDefaults([
             'data_class' => Seeker::class,
-            'validation_groups' => function (FormInterface $form) {
-                $data = $form->getData();
-
-                if ($data->getCv()) {
-                    if (exif_imagetype($data->getCv())) {
-                        return ['fiche', 'image'];
-                    }
-                }
-                return ['fiche'];
-            },
         ]);
     }
 }
