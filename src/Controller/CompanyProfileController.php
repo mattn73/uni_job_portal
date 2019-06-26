@@ -60,7 +60,7 @@ class CompanyProfileController extends AbstractController
             $this->addFlash('update', 'Contact person and Company was updated');
         }
 
-        return $this->render('company_profile/index.twig', [
+        return $this->render('company_profile/createJob.twig', [
             'company' => $company,
             'form' => $form->createView(),
         ]);
@@ -75,6 +75,10 @@ class CompanyProfileController extends AbstractController
      */
     public function companyRegister(Request $request, \Swift_Mailer $mailer, LoggerInterface $logger)
     {
+        if ($this->container->get('security.authorization_checker')->isGranted('ROLE_USER')) {
+            return new RedirectResponse('/');
+        }
+
         $em = $this->getDoctrine()->getManager();
         //form
         $form = $this->createForm(CompanyProfileType::class);
