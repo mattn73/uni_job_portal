@@ -3,10 +3,67 @@
 {% block title %}Profile Seeker{% endblock %}
 
 {% block body %}
+    {# Flash message #}
+    {% for message in app.flashes('success') %}
+        <div class="alert alert-success">
+            {{ message }}
+        </div>
+    {% endfor %}
+
 
     {{ form_start(form, {'attr': {'id': 'registration-form', 'novalidate':'true'}}) }}
 
-    {{ form_row(form) }}
+    <div class="form-group name">
+        {{ form_label(form.title) }}
+        {{ form_widget(form.title) }}
+        {{- form_errors(form.title) -}}
+    </div>
+    <div class="form-group surname">
+        {{ form_label(form.lastName) }}
+        {{ form_widget(form.lastName) }}
+        {{- form_errors(form.lastName) -}}
+
+    </div>
+    <div class="form-group">
+        {{ form_label(form.firstname) }}
+        {{ form_widget(form.firstname) }}
+        {{- form_errors(form.firstname) -}}
+    </div>
+    <div class="form-group">
+        {{ form_label(form.address) }}
+        {{ form_widget(form.address) }}
+        {{- form_errors(form.address) -}}
+
+    </div>
+    <div class="form-group">
+        {{ form_label(form.contact) }}
+        {{ form_widget(form.contact) }}
+        {{- form_errors(form.contact) -}}
+    </div>
+    <div class="form-group ">
+        {{ form_label(form.dob) }}
+        {{ form_widget(form.dob) }}
+        {{- form_errors(form.dob) -}}
+
+    </div>
+
+    <div class="form-group ">
+        {{ form_label(form.hqa) }}
+        {{ form_widget(form.hqa) }}
+        {{- form_errors(form.hqa) -}}
+
+    </div>
+
+    <div class="form-group">
+        {{ form_label(form.cv) }}
+        {{ form_widget(form.cv) }}
+        {{- form_errors(form.cv) -}}
+    </div>
+
+    <div class="form-group">
+        {{ form_widget(form.submit) }}
+        {{- form_errors(form.cv) -}}
+    </div>
 
     {{ form_end(form) }}
 
