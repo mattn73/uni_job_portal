@@ -67,7 +67,7 @@ class CompanyProfileController extends AbstractController
     }
 
     /**
-     * @Route("/register/company", name="company_register", options={"expose"=true})
+     * @Route("register/company", name="company_register", options={"expose"=true})
      * @param Request $request
      * @param Swift_Mailer $mailer
      * @param LoggerInterface $logger

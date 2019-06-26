@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -46,6 +48,16 @@ class Company
      * @ORM\JoinColumn(nullable=false)
      */
     private $user;
+
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\JobPosting", mappedBy="company")
+     */
+    private $jobPostings;
+
+    public function __construct()
+    {
+        $this->jobPostings = new ArrayCollection();
+    }
 
     public function getId(): ?int
     {
@@ -120,6 +132,37 @@ class Company
     public function setUser(User $user): self
     {
         $this->user = $user;
+
+        return $this;
+    }
+
+    /**
+     * @return Collection|JobPosting[]
+     */
+    public function getJobPostings(): Collection
+    {
+        return $this->jobPostings;
+    }
+
+    public function addJobPosting(JobPosting $jobPosting): self
+    {
+        if (!$this->jobPostings->contains($jobPosting)) {
+            $this->jobPostings[] = $jobPosting;
+            $jobPosting->setCompany($this);
+        }
+
+        return $this;
+    }
+
+    public function removeJobPosting(JobPosting $jobPosting): self
+    {
+        if ($this->jobPostings->contains($jobPosting)) {
+            $this->jobPostings->removeElement($jobPosting);
+            // set the owning side to null (unless already changed)
+            if ($jobPosting->getCompany() === $this) {
+                $jobPosting->setCompany(null);
+            }
+        }
 
         return $this;
     }

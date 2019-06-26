@@ -47,4 +47,20 @@ class JobPostingRepository extends ServiceEntityRepository
         ;
     }
     */
+
+    /**
+     * @param $company
+     * @return mixed
+     */
+    public function findAllJobPostings($company)
+    {
+        return $this->createQueryBuilder('j')
+            ->leftJoin('j.company', 'jc')
+            ->addSelect('jc')
+            ->andWhere('j.company = :company')
+            ->setParameter('company', $company)
+            ->getQuery()
+            ->getResult()
+            ;
+    }
 }

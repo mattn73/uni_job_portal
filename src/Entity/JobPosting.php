@@ -36,6 +36,11 @@ class JobPosting
      */
     private $JobDescr;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Company", inversedBy="jobPostings")
+     */
+    private $company;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -85,6 +90,18 @@ class JobPosting
     public function setJobDescr(string $JobDescr): self
     {
         $this->JobDescr = $JobDescr;
+
+        return $this;
+    }
+
+    public function getCompany(): ?Company
+    {
+        return $this->company;
+    }
+
+    public function setCompany(?Company $company): self
+    {
+        $this->company = $company;
 
         return $this;
     }
