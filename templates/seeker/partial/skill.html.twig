@@ -1,6 +1,5 @@
 <div class="container " id="skill-container">
-    <h2>Striped Rows</h2>
-    <p>Skills :</p>
+    <h2>Skills </h2>
     <table class="table table-striped">
         <thead>
         <tr>
@@ -16,7 +15,7 @@
 
         {% for skill in skills %}
             <tr>
-                <td>{{ skill }}</td>
+                <td>{{ skill.name }}</td>
             </tr>
         {% endfor %}
         <tr>
@@ -30,7 +29,6 @@
                     </div>
                 </div>
                 {{ form_end(skillForm) }}
-
             </td>
         </tr>
 

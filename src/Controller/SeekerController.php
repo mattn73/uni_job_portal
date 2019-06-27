@@ -173,27 +173,37 @@ class SeekerController extends AbstractController
      */
     public function AddSkill(Request $request, LoggerInterface $logger)
     {
+        $seekerRepo = $this->getDoctrine()->getRepository(Seeker::class);
+        $seeker = $seekerRepo->findOneBy(array('user' => $this->getUser()));
 
         $skillForm = $this->createForm(SkillType::class);
         $skillForm->handleRequest($request);
-        $seekerRepo = $this->getDoctrine()->getRepository(Seeker::class);
-        $seeker = $seekerRepo->findOneBy(array('user' => $this->getUser()));
-        $skill = $seeker->getSkill();
-
         if ($skillForm->isSubmitted() && $skillForm->isValid()) {
 
+            $skillName = ucwords($skillForm->getData()->getName());
+            $skill = $seekerRepo = $this->getDoctrine()->getRepository(Skill::class)->findOneBy(array('name' => $skillName));
 
-//add function to add skill and add seeker to it
+            $em = $this->getDoctrine()->getManager();
 
+            if(is_null($skill)){
+                $skill = new Skill();
+                $skill->setName($skillName);
+                $em->persist($skill);
 
+            }
+
+            $seeker->addSkill($skill);
+
+            $em->persist($seeker);
+            $em->flush();
         }
+        $skills = $seeker->getSkill();
+
         return $this->render('seeker/partial/skill.html.twig', [
             'skillForm' => $skillForm->createView(),
-            'skills' => $skill,
+            'skills' => $skills,
         ]);
     }
-
-
 
 
     /**
