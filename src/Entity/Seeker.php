@@ -81,6 +81,11 @@ class Seeker
      */
     private $skill;
 
+    /**
+     * @ORM\OneToOne(targetEntity="App\Entity\Application", mappedBy="seeker", cascade={"persist", "remove"})
+     */
+    private $application;
+
     public function __construct()
     {
         $this->skill = new ArrayCollection();
@@ -232,6 +237,23 @@ class Seeker
     {
         if ($this->skill->contains($skill)) {
             $this->skill->removeElement($skill);
+        }
+
+        return $this;
+    }
+
+    public function getApplication(): ?Application
+    {
+        return $this->application;
+    }
+
+    public function setApplication(Application $application): self
+    {
+        $this->application = $application;
+
+        // set the owning side of the relation if necessary
+        if ($this !== $application->getSeeker()) {
+            $application->setSeeker($this);
         }
 
         return $this;

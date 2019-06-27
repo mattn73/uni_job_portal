@@ -41,6 +41,11 @@ class JobPosting
      */
     private $company;
 
+    /**
+     * @ORM\OneToOne(targetEntity="App\Entity\Application", mappedBy="job", cascade={"persist", "remove"})
+     */
+    private $application;
+
     public function getId(): ?int
     {
         return $this->id;
@@ -102,6 +107,23 @@ class JobPosting
     public function setCompany(?Company $company): self
     {
         $this->company = $company;
+
+        return $this;
+    }
+
+    public function getApplication(): ?Application
+    {
+        return $this->application;
+    }
+
+    public function setApplication(Application $application): self
+    {
+        $this->application = $application;
+
+        // set the owning side of the relation if necessary
+        if ($this !== $application->getJob()) {
+            $application->setJob($this);
+        }
 
         return $this;
     }

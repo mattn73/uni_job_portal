@@ -3,6 +3,8 @@
 namespace App\Controller;
 
 use App\Entity\JobPosting;
+use App\Entity\Application;
+use App\Entity\Seeker;
 use App\Form\CreateJobType;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
@@ -66,6 +68,57 @@ class JobController extends AbstractController
 
         return $this->render('job/listJob.twig', [
             'jobs' => $jobs
+        ]);
+    }
+
+    /**
+     * list all jobs
+     *
+     * @Route("/job", name="job_list_general")
+     */
+    public function jobList()
+    {
+        $jobRepo = $this->getDoctrine()->getRepository(JobPosting::class);
+        $jobs = $jobRepo->findAllValidatedJobs();
+
+        return $this->render('job/listJob.html.twig', [
+            'jobs' => $jobs
+        ]);
+    }
+
+    /**
+     * Apply Job
+     *
+     * @Route("seeker/apply-job/{id}", name="apply_job")
+     */
+    public function ApplyJob($id)
+    {
+        $jobRepo = $this->getDoctrine()->getRepository(JobPosting::class);
+        $job = $jobRepo->find($id);
+
+        if(is_null($job)){
+            return $this->render('job/apply-_job.twig', [
+                'found'=> false,
+            ]);
+        }
+
+        $seekerRepo = $this->getDoctrine()->getRepository(Seeker::class);
+        $seeker = $seekerRepo->findOneBy(array('user' => $this->getUser()));
+
+        $application = new Application();
+        $application->setSeeker($seeker);
+        $application->setJob($job);
+        $application->setStatus(Application::NEW);
+        $application->setNotification(true);
+
+        $em = $this->getDoctrine()->getManager();
+
+        $em->persist($application);
+        $em->flush();
+
+        return $this->render('job/listJob.twig', [
+            'found' => true,
+            'job'   => $job
         ]);
     }
 }

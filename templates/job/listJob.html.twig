@@ -1,0 +1,20 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Job - List{% endblock %}
+
+{% block body %}
+    <h1>List of Jobs</h1>
+    {% for job in jobs %}
+        <ul>
+            <li>Job Title: {{ job.JobTitle }}</li>
+            <li>Job Reference: {{ job.JobReference }}</li>
+            <li>Job Closing Date: {{ job.ClosingDate|date('Y-m-d') }}</li>
+            <li>Job Description: {{ job.JobDescr }}</li>
+            <li>Company: {{ job.company.companyName }}</li>
+            <li>
+                <a href="{{ path('apply_job', {id: job.id}) }}">
+                    <button type="button" class="btn" value="Apply">Apply</button></a>
+            </li>
+        </ul>
+    {% endfor %}
+{% endblock %}
