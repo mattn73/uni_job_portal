@@ -47,4 +47,43 @@ class LoginHistoryRepository extends ServiceEntityRepository
         ;
     }
     */
+
+    /**
+     * Get three last records of login history
+     *
+     * @param $ipUser
+     * @return array
+     */
+    public function findThreeLastRecordByIp($ipUser)
+    {
+        return $this->createQueryBuilder('l')
+            ->andWhere('l.UserIp = :userIp')
+            ->setParameter('userIp', $ipUser)
+            ->orderBy('l.timestamp', 'DESC')
+            ->setMaxResults(3)
+            ->getQuery()
+            ->getResult()
+            ;
+    }
+
+    /**
+     * Find last record of block status
+     *
+     * @param $userIp
+     * @return LoginHistory
+     * @throws \Doctrine\ORM\NonUniqueResultException
+     */
+    public function findLastBlockIp($userIp)
+    {
+        return $this->createQueryBuilder('l')
+            ->andWhere('l.UserIp = :userIp')
+            ->andWhere('l.status = :status')
+            ->setParameter('userIp', $userIp)
+            ->setParameter('status', LoginHistory::BLOCK)
+            ->orderBy('l.timestamp', 'DESC')
+            ->setMaxResults(1)
+            ->getQuery()
+            ->getOneOrNullResult()
+            ;
+    }
 }

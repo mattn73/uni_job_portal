@@ -9,6 +9,11 @@ use Doctrine\ORM\Mapping as ORM;
  */
 class LoginHistory
 {
+    const ALLOW = 'ALLOW';
+    const NOT_ALLOW = 'NOT_ALLOW';
+    const BLOCK = 'BLOCK';
+    const LOGIN_ATTEMPT_ALLOW = 3;
+
     /**
      * @ORM\Id()
      * @ORM\GeneratedValue()
@@ -22,7 +27,7 @@ class LoginHistory
     private $UserIp;
 
     /**
-     * @ORM\Column(type="boolean")
+     * @ORM\Column(type="string")
      */
     private $status;
 
@@ -56,12 +61,12 @@ class LoginHistory
         return $this;
     }
 
-    public function getStatus(): ?bool
+    public function getStatus(): ?string
     {
         return $this->status;
     }
 
-    public function setStatus(bool $status): self
+    public function setStatus(string $status): self
     {
         $this->status = $status;
 

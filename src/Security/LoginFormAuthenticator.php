@@ -86,6 +86,24 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
 
     public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
     {
+        $loginHistoryRepo = $this->entityManager->getRepository(LoginHistory::class);
+        $userIp = $request->getClientIp();
+        //check if this user is blocked based on its ip address
+        $checkLogin = $this->checkIfBlock($loginHistoryRepo, $userIp);
+
+        //if blocked
+        if (!$checkLogin) {
+            throw new CustomUserMessageAuthenticationException('Your account is blocked for 30 min, Please try again after');
+//            return new RedirectResponse($this->router->generate('app_login'));
+        }
+
+        $userIp = $request->getClientIp();
+        $lHistory = new LoginHistory();
+        $lHistory->setStatus(LoginHistory::ALLOW);
+        $lHistory->setUserIp($userIp);
+        $this->entityManager->persist($lHistory);
+        $this->entityManager->flush();
+
         if ($targetPath = $this->getTargetPath($request->getSession(), $providerKey)) {
             return new RedirectResponse($targetPath);
         }
@@ -112,19 +130,44 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
 
     public function onAuthenticationFailure(Request $request, AuthenticationException $exception)
     {
+        $loginHistoryRepo = $this->entityManager->getRepository(LoginHistory::class);
         $userIp = $request->getClientIp();
+        //check if this user is blocked based on its ip address
+        $checkLogin = $this->checkIfBlock($loginHistoryRepo, $userIp);
+
+        //if blocked
+        if (!$checkLogin) {
+            throw new CustomUserMessageAuthenticationException('Your account is blocked for 30 min, Please try again after');
+            dd($request->getSession());
+//            return new RedirectResponse($this->router->generate('app_login'));
+        }
+
+        //create a new record
         $lHistory = new LoginHistory();
-        $lHistory->setStatus(false);
+        $lHistory->setStatus(LoginHistory::NOT_ALLOW);
         $lHistory->setUserIp($userIp);
         $this->entityManager->persist($lHistory);
         $this->entityManager->flush();
 
-        $checkAttempt = $this->entityManager->getRepository(LoginHistory::class)->findBy([
-            'UserIp' => $userIp
-        ]);
+        //search for 3 last attempts of login
+        $historyRecords = $loginHistoryRepo->findThreeLastRecordByIp($userIp);
 
-        if (count($checkAttempt) > 3) {
+        $count = 0;
 
+        //loop through the attempt
+        foreach ($historyRecords as $historyRecord) {
+            //count fail login attempts
+            if ($historyRecord->getStatus() == LoginHistory::NOT_ALLOW) {
+                $count++;
+            }
+        }
+
+        if ($count == LoginHistory::LOGIN_ATTEMPT_ALLOW) {
+            $lHistory = new LoginHistory();
+            $lHistory->setStatus(LoginHistory::BLOCK);
+            $lHistory->setUserIp($userIp);
+            $this->entityManager->persist($lHistory);
+            $this->entityManager->flush();
         }
 
         return new RedirectResponse($this->router->generate('app_login'));
@@ -133,5 +176,25 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
     protected function getLoginUrl()
     {
         return $this->router->generate('app_login');
+    }
+
+    private function checkIfBlock($loginHistoryRepo, $userIp)
+    {
+        $lastBlockRecord = $loginHistoryRepo->findLastBlockIp($userIp);
+
+        if (null == $lastBlockRecord) {
+            return true;
+        }
+
+        $blockRecordDate = $lastBlockRecord->getTimestamp();
+        $dateTimeNow = new \DateTime();
+        $interval = $blockRecordDate->diff($dateTimeNow);
+
+        //if greater than 30 min or 1 hour
+        if (($interval->i > 30) || ($interval->h > 0)) {
+            return true;
+        } else {
+            return false;
+        }
     }
 }
