@@ -15,7 +15,10 @@
 
         {% for skill in skills %}
             <tr>
-                <td>{{ skill.name }}</td>
+                <td>{{ skill.name }}
+                    <button type="button" id="{{ skill.id }}"class="btn btn-labeled btn-danger delete-skill">
+                        <span class="btn-label"><i class="glyphicon glyphicon-trash"></i></span>Trash</button>
+                </td>
             </tr>
         {% endfor %}
         <tr>

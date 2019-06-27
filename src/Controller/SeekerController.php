@@ -10,6 +10,7 @@ use http\Exception;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\Routing\Annotation\Route;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RedirectResponse;
 use App\Entity\Seeker;
@@ -185,7 +186,7 @@ class SeekerController extends AbstractController
 
             $em = $this->getDoctrine()->getManager();
 
-            if(is_null($skill)){
+            if (is_null($skill)) {
                 $skill = new Skill();
                 $skill->setName($skillName);
                 $em->persist($skill);
@@ -198,6 +199,43 @@ class SeekerController extends AbstractController
             $em->flush();
         }
         $skills = $seeker->getSkill();
+
+        return $this->render('seeker/partial/skill.html.twig', [
+            'skillForm' => $skillForm->createView(),
+            'skills' => $skills,
+        ]);
+    }
+
+    /**
+     * @Route("/skill/delete", name="delete_skill")
+     */
+    public function removeSkill(Request $request, LoggerInterface $logger)
+    {
+        $id = $request->get('id');
+
+        if (is_null($id) || !is_numeric($id)) {
+            return new Response(Response::HTTP_BAD_REQUEST);
+        }
+
+        $seekerRepo = $this->getDoctrine()->getRepository(Seeker::class);
+        $seeker = $seekerRepo->findOneBy(array('user' => $this->getUser()));
+
+        $skill = $seekerRepo = $this->getDoctrine()->getRepository(Skill::class)->find($id);
+
+        $em = $this->getDoctrine()->getManager();
+
+        if (is_null($skill)) {
+            return new Response(Response::HTTP_NOT_FOUND);
+        }
+
+        $seeker->removeSkill($skill);
+
+        $em->persist($seeker);
+        $em->flush();
+
+        $skills = $seeker->getSkill();
+
+        $skillForm = $this->createForm(SkillType::class);
 
         return $this->render('seeker/partial/skill.html.twig', [
             'skillForm' => $skillForm->createView(),
