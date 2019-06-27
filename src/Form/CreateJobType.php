@@ -12,6 +12,7 @@ use Symfony\Component\Form\Extension\Core\Type\SubmitType;
 use Symfony\Component\Validator\Constraints\NotBlank;
 use Symfony\Component\Validator\Constraints\Regex;
 use Symfony\Component\Validator\Constraints\Length;
+use App\Validator\Constraints\checkDate;
 
 class CreateJobType extends AbstractType
 {
@@ -37,8 +38,11 @@ class CreateJobType extends AbstractType
             ->add('cDate', DateType::class, [
                 'label' => 'Closing Date*',
                 'widget' => 'choice',
-                'input' => 'datetime_immutable',
                 'format' => 'yyyy-MM-dd',
+                'data' => new \DateTime(),
+                'constraints' => [
+                    new checkDate(),
+                ]
             ])
             ->add('jDesc', TextareaType::class, [
                 'label' => 'Job Description*',
