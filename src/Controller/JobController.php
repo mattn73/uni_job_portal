@@ -97,7 +97,7 @@ class JobController extends AbstractController
         $job = $jobRepo->find($id);
 
         if(is_null($job)){
-            return $this->render('job/apply-_job.twig', [
+            return $this->render('job/apply_job.html.twig', [
                 'found'=> false,
             ]);
         }
@@ -116,7 +116,7 @@ class JobController extends AbstractController
         $em->persist($application);
         $em->flush();
 
-        return $this->render('job/listJob.twig', [
+        return $this->render('job/apply_job.html.twig', [
             'found' => true,
             'job'   => $job
         ]);
