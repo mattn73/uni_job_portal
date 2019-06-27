@@ -22,6 +22,19 @@ $(document).on('click', '#skill_submit', function(e){
             $('#skill-container').replaceWith(data);
         }
     });
+});
 
-
+$(document).on('click', '.delete-skill', function(){
+    id = this.id;
+    url = '/skill/delete';
+    $.ajax({
+        type: "POST",
+        url: url,
+        data: {id:id}, // serializes the form's elements.
+        success: function(data)
+        {
+            console.log(data);
+            $('#skill-container').replaceWith(data);
+        }
+    });
 });
