@@ -32,7 +32,7 @@ class CompanyProfileController extends AbstractController
      * @param Request $request
      * @return Response
      */
-    public function companyIndex(Request $request)
+    public function companyIndexAction(Request $request)
     {
         //get current user logged in
         $em = $this->getDoctrine()->getManager();
@@ -75,7 +75,7 @@ class CompanyProfileController extends AbstractController
      * @param LoggerInterface $logger
      * @return Response
      */
-    public function companyRegister(Request $request, \Swift_Mailer $mailer, LoggerInterface $logger)
+    public function companyRegisterAction(Request $request, \Swift_Mailer $mailer, LoggerInterface $logger)
     {
         if ($this->container->get('security.authorization_checker')->isGranted('ROLE_USER')) {
             return new RedirectResponse('/');
