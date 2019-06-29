@@ -24,7 +24,8 @@ class ApplicationRepository extends ServiceEntityRepository
     public function findByCompany($value)
     {
         return $this->createQueryBuilder('a')
-            ->andWhere('a.company = :val')
+            ->leftJoin('a.job', 'j')
+            ->andWhere('j.company = :val')
             ->setParameter('val', $value)
             ->orderBy('a.id', 'ASC')
             ->getQuery()

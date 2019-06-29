@@ -33,8 +33,38 @@ $(document).on('click', '.delete-skill', function(){
         data: {id:id}, // serializes the form's elements.
         success: function(data)
         {
-            console.log(data);
             $('#skill-container').replaceWith(data);
+        }
+    });
+});
+
+$(document).on('click', '.app-action-accept', function(){
+    id = this.parentNode.id;
+    parentDiv = this.parentNode.parentNode;
+    url = '/application/status';
+    $.ajax({
+        type: "POST",
+        url: url,
+        data: {id:id , status: 'accept'}, // serializes the form's elements.
+        success: function(data)
+        {
+           $(parentDiv).replaceWith(data);
+        }
+    });
+});
+
+
+$(document).on('click', '.app-action-reject', function(){
+    id = this.parentNode.id;
+    parentDiv = this.parentNode.parentNode;
+    url = '/application/status';
+    $.ajax({
+        type: "POST",
+        url: url,
+        data: {id:id , status: 'reject'}, // serializes the form's elements.
+        success: function(data)
+        {
+            $(parentDiv).replaceWith(data);
         }
     });
 });
