@@ -6,6 +6,8 @@ use App\Entity\Skill;
 use App\Entity\User;
 use App\Form\SeekerProfileType;
 use App\Form\SkillType;
+use Doctrine\ORM\EntityManager;
+use Doctrine\ORM\EntityManagerInterface;
 use http\Exception;
 use Sensio\Bundle\FrameworkExtraBundle\Configuration\IsGranted;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -240,6 +242,21 @@ class SeekerController extends AbstractController
         return $this->render('seeker/partial/skill.html.twig', [
             'skillForm' => $skillForm->createView(),
             'skills' => $skills,
+        ]);
+    }
+
+    /**
+     * @Route("/seeker/view-jobs", name="seeker_view_jobs")
+     */
+    public function ViewJobs(Request $request, LoggerInterface $logger, EntityManagerInterface $em){
+
+        $seekerRepo = $this->getDoctrine()->getRepository(Seeker::class);
+        $seeker = $seekerRepo->findOneBy(array('user' => $this->getUser()));
+
+        $application = $seeker->getApplications();
+            dd($application);
+        return $this->render('seeker/listApplication.html.twig', [
+            'applications' => $application,
         ]);
     }
 

@@ -1,0 +1,11 @@
+.app-accept{
+    color: #1c7430;
+}
+
+.app-pending{
+    color: #ffff00 ;
+}
+
+.app-reject{
+    color: #ff253a;
+}

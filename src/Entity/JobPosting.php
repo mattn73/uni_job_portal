@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use Doctrine\Common\Collections\ArrayCollection;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 
 /**
@@ -42,9 +44,16 @@ class JobPosting
     private $company;
 
     /**
-     * @ORM\OneToOne(targetEntity="App\Entity\Application", mappedBy="job", cascade={"persist", "remove"})
+     * @ORM\OneToMany(targetEntity="App\Entity\Application", mappedBy="job", orphanRemoval=true)
      */
-    private $application;
+    private $applications;
+
+    public function __construct()
+    {
+        $this->applications = new ArrayCollection();
+    }
+
+
 
     public function getId(): ?int
     {
@@ -111,20 +120,36 @@ class JobPosting
         return $this;
     }
 
-    public function getApplication(): ?Application
+    /**
+     * @return Collection|Application[]
+     */
+    public function getApplications(): Collection
     {
-        return $this->application;
+        return $this->applications;
     }
 
-    public function setApplication(Application $application): self
+    public function addApplication(Application $application): self
     {
-        $this->application = $application;
-
-        // set the owning side of the relation if necessary
-        if ($this !== $application->getJob()) {
+        if (!$this->applications->contains($application)) {
+            $this->applications[] = $application;
             $application->setJob($this);
         }
 
         return $this;
     }
+
+    public function removeApplication(Application $application): self
+    {
+        if ($this->applications->contains($application)) {
+            $this->applications->removeElement($application);
+            // set the owning side to null (unless already changed)
+            if ($application->getJob() === $this) {
+                $application->setJob(null);
+            }
+        }
+
+        return $this;
+    }
+
+
 }
