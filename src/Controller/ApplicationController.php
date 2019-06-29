@@ -67,6 +67,16 @@ class ApplicationController extends AbstractController
      */
     public function companyJobApplicationAction($id)
     {
+        $jobRepo = $this->getDoctrine()->getRepository(JobPosting::class);
+
+        $job = $jobRepo->find($id);
+
+        $applications = $job->getApplications();
+
+        return $this->render('company_profile/listApplication.twig', [
+            'applications' => $applications,
+            'general' => true
+        ]);
 
 
     }
