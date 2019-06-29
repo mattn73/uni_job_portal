@@ -1,0 +1,39 @@
+{% extends 'base.html.twig' %}
+{% block title %}Search Job Seeker{% endblock %}
+{% block stylesheets %}
+{% endblock %}
+{% block body %}
+    {{ form_start(form, {'attr': {'id': 'jssfrm', 'novalidate':'true'}}) }}
+
+    <div class="form-group cName">
+        {{ form_label(form.searchSkill) }}
+        {{ form_widget(form.searchSkill) }}
+        {{ form_errors(form.searchSkill) }}
+    </div>
+
+    {{ form_row(form.search) }}
+    {{ form_end(form) }}
+
+    {% if skillResults is defined %}
+        <h2>Search Results</h2>
+        <table class="table">
+            <th>Name</th>
+            <th>Skill</th>
+            {% for skillResult in skillResults %}
+                {% for seeker in skillResult.seekers %}
+                    <tr>
+                        <td>{{ seeker.firstName }} {{ seeker.lastName }}</td>
+                        <td>
+                            {% for skill in seeker.skill %}
+                                {{ skill.name }},
+                            {% endfor %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            {% endfor %}
+        </table>
+    {% endif %}
+
+{% endblock %}
+{% block javascripts %}
+{% endblock %}

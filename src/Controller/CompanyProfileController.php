@@ -4,8 +4,10 @@ namespace App\Controller;
 
 use App\Entity\Company;
 use App\Entity\Seeker;
+use App\Entity\Skill;
 use App\Entity\User;
 use App\Form\CompanyUpdateProfileType;
+use App\Form\JobSeekerSearchType;
 use Swift_Mailer;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -152,6 +154,32 @@ class CompanyProfileController extends AbstractController
 
         return $this->render('user/confirmationSucess.html.twig', [
             'email' => $user->getEmail(),
+        ]);
+    }
+
+    /**
+     * @Route("/company/search/job-seeker", name="company_search_cp")
+     */
+    public function searchJobSeeker(Request $request)
+    {
+        $skillRepo = $this->getDoctrine()->getRepository(Skill::class);
+        $form = $this->createForm(JobSeekerSearchType::class);
+        $form->handleRequest($request);
+
+        if ($form->isSubmitted() && $form->isValid()) {
+            $searchVal = $form['searchSkill']->getData();
+            $skillResults = $skillRepo->findSeekersBySkill($searchVal);
+
+            if (count($skillResults) > 0) {
+                return $this->render('company_profile/searchjobseeker.twig', [
+                    'form' => $form->createView(),
+                    'skillResults' => $skillResults
+                ]);
+            }
+        }
+
+        return $this->render('company_profile/searchjobseeker.twig', [
+            'form' => $form->createView(),
         ]);
     }
 
