@@ -4,15 +4,20 @@
 
 {% block body %}
 
-    {%  if found %}
+    {% if found %}
 
         <h1>Job Application was Successful</h1>
 
 
-    {% else%}
+    {% else %}
 
         <h1>Job Application Failed</h1>
 
+        {% if found %}
+
+            <h1>Already Apply for the job</h1>
+
+        {% endif %}
     {% endif %}
 
 {% endblock %}

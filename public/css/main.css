@@ -1,11 +1,14 @@
 .app-accept{
     color: #1c7430;
+    font-size: 2em;
 }
 
 .app-pending{
-    color: #ffff00 ;
+    color: #ffff00;
+    font-size: 2em;
 }
 
 .app-reject{
     color: #ff253a;
+    font-size: 2em;
 }

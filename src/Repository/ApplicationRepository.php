@@ -42,4 +42,15 @@ class ApplicationRepository extends ServiceEntityRepository
             ->getResult()
             ;
     }
+
+    public function exist($job,$seeker){
+        return $this->createQueryBuilder('a')
+            ->andWhere('a.seeker = :seeker')
+            ->andWhere('a.job = :job')
+            ->setParameter('seeker', $seeker)
+            ->setParameter('job', $job)
+            ->getQuery()
+            ->getResult()
+            ;
+    }
 }

@@ -87,6 +87,23 @@ class JobController extends AbstractController
     }
 
     /**
+     * @param $id
+     * @return Response
+     * list all jobs
+     *
+     * @Route("/job/{id}", name="seeker_view_application")
+     */
+    public function viewJob($id)
+    {
+        $jobRepo = $this->getDoctrine()->getRepository(JobPosting::class);
+        $jobs = $jobRepo->find($id);
+
+        return $this->render('job/viewJob.html.twig', [
+            'job' => $jobs
+        ]);
+    }
+
+    /**
      * Apply Job
      *
      * @Route("seeker/apply-job/{id}", name="apply_job")
@@ -99,11 +116,22 @@ class JobController extends AbstractController
         if(is_null($job)){
             return $this->render('job/apply_job.html.twig', [
                 'found'=> false,
+                'reason'=> false,
+
             ]);
         }
 
         $seekerRepo = $this->getDoctrine()->getRepository(Seeker::class);
         $seeker = $seekerRepo->findOneBy(array('user' => $this->getUser()));
+
+        $application = $applicationRepo = $this->getDoctrine()->getRepository(Application::class)->exist($job,$seeker);
+
+        if(!is_null($application)){
+            return $this->render('job/apply_job.html.twig', [
+                'found'=> false,
+                'reason'=> true,
+            ]);
+        }
 
         $application = new Application();
         $application->setSeeker($seeker);

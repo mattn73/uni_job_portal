@@ -13,7 +13,7 @@ class ApplicationController extends AbstractController
     /**
      * @Route("/jobs", name="application")
      */
-    public function allJobs()
+    public function allJobsAction()
     {
         $jobRepo = $this->getDoctrine()->getRepository(JobPosting::class);
         $jobs = $jobRepo->findAllValidatedJobs();
@@ -26,7 +26,7 @@ class ApplicationController extends AbstractController
     /**
      * @Route("/company/applications", name="application_company")
      */
-    public function companyApplication()
+    public function companyApplicationAction()
     {
         $applicationRepo = $this->getDoctrine()->getRepository(Application::class);
         $user = $this->getUser();
@@ -41,4 +41,23 @@ class ApplicationController extends AbstractController
             'applications' => $applications
         ]);
     }
+
+    /**
+     * @Route("/company/jobs", name="company_job")
+     */
+    public function companyJobAction()
+    {
+
+
+    }
+
+    /**
+     * @Route("/company/job/application", name="company_job_application")
+     */
+    public function companyJobApplicationAction()
+    {
+
+
+    }
+
 }
