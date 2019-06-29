@@ -13,8 +13,7 @@ class Application
     CONST ACCEPT  = 'accept';
     CONST REJECT  = 'reject';
     CONST PENDING = 'pending';
-    CONST TRUE    = true;
-    CONST FALSE   = false;
+
 
     /**
      * @ORM\Id()
@@ -22,18 +21,6 @@ class Application
      * @ORM\Column(type="integer")
      */
     private $id;
-
-    /**
-     * @ORM\OneToOne(targetEntity="App\Entity\Seeker", inversedBy="application", cascade={"persist", "remove"})
-     * @ORM\JoinColumn(nullable=false)
-     */
-    private $seeker;
-
-    /**
-     * @ORM\OneToOne(targetEntity="App\Entity\JobPosting", inversedBy="application", cascade={"persist", "remove"})
-     * @ORM\JoinColumn(nullable=false)
-     */
-    private $job;
 
     /**
      * @ORM\Column(type="string", length=50)
@@ -45,21 +32,21 @@ class Application
      */
     private $notification;
 
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\Seeker", inversedBy="applications")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $seeker;
+
+    /**
+     * @ORM\ManyToOne(targetEntity="App\Entity\JobPosting", inversedBy="applications")
+     * @ORM\JoinColumn(nullable=false)
+     */
+    private $job;
+
     public function getId(): ?int
     {
         return $this->id;
-    }
-
-    public function getSeeker(): ?Seeker
-    {
-        return $this->seeker;
-    }
-
-    public function setSeeker(Seeker $seeker): self
-    {
-        $this->seeker = $seeker;
-
-        return $this;
     }
 
     public function getJob(): ?JobPosting
@@ -94,6 +81,18 @@ class Application
     public function setNotification(bool $notification): self
     {
         $this->notification = $notification;
+
+        return $this;
+    }
+
+    public function getSeeker(): ?Seeker
+    {
+        return $this->seeker;
+    }
+
+    public function setSeeker(?Seeker $seeker): self
+    {
+        $this->seeker = $seeker;
 
         return $this;
     }
