@@ -11,6 +11,8 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\Routing\RouterInterface;
 use Symfony\Component\Security\Core\Authentication\Token\TokenInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
+use Symfony\Component\HttpFoundation\Session\SessionInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Core\Exception\AuthenticationException;
 use Symfony\Component\Security\Core\Exception\CustomUserMessageAuthenticationException;
 use Symfony\Component\Security\Core\Exception\InvalidCsrfTokenException;
@@ -32,13 +34,24 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
     private $router;
     private $csrfTokenManager;
     private $passwordEncoder;
+    private $session;
+    private $request;
 
-    public function __construct(EntityManagerInterface $entityManager, RouterInterface $router, CsrfTokenManagerInterface $csrfTokenManager, UserPasswordEncoderInterface $passwordEncoder)
+    public function __construct(
+        EntityManagerInterface $entityManager,
+        RouterInterface $router,
+        CsrfTokenManagerInterface $csrfTokenManager,
+        UserPasswordEncoderInterface $passwordEncoder,
+        SessionInterface $session,
+        RequestStack $request
+    )
     {
         $this->entityManager = $entityManager;
         $this->router = $router;
         $this->csrfTokenManager = $csrfTokenManager;
         $this->passwordEncoder = $passwordEncoder;
+        $this->session = $session;
+        $this->request= $request;
     }
 
     public function supports(Request $request)
@@ -81,22 +94,35 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
 
     public function checkCredentials($credentials, UserInterface $user)
     {
-        return $this->passwordEncoder->isPasswordValid($user, $credentials['password']);
-    }
-
-    public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
-    {
         $loginHistoryRepo = $this->entityManager->getRepository(LoginHistory::class);
-        $userIp = $request->getClientIp();
+        $userIp = $this->request->getCurrentRequest()->getClientIp();
         //check if this user is blocked based on its ip address
         $checkLogin = $this->checkIfBlock($loginHistoryRepo, $userIp);
 
         //if blocked
         if (!$checkLogin) {
-            throw new CustomUserMessageAuthenticationException('Your account is blocked for 30 min, Please try again after');
-//            return new RedirectResponse($this->router->generate('app_login'));
+            $this->session->set('blockMsg', 'Your ip address is blocked for 30 minutes, Please try again after');
+            $this->session->remove('errorMsg');
+
+            return false;
         }
 
+        $this->session->remove('blockMsg');
+
+
+        $loginStatus = $this->passwordEncoder->isPasswordValid($user, $credentials['password']);
+
+        if(!$loginStatus){
+            $this->session->set('errorMsg', 'Invalid username/password');
+        } else {
+            $this->session->remove('errorMsg');
+        }
+
+        return $loginStatus;
+    }
+
+    public function onAuthenticationSuccess(Request $request, TokenInterface $token, $providerKey)
+    {
         $userIp = $request->getClientIp();
         $lHistory = new LoginHistory();
         $lHistory->setStatus(LoginHistory::ALLOW);
@@ -135,34 +161,22 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
         //check if this user is blocked based on its ip address
         $checkLogin = $this->checkIfBlock($loginHistoryRepo, $userIp);
 
-        //if blocked
-        if (!$checkLogin) {
-            throw new CustomUserMessageAuthenticationException('Your account is blocked for 30 min, Please try again after');
-            dd($request->getSession());
-//            return new RedirectResponse($this->router->generate('app_login'));
+        //if not blocked
+        if ($checkLogin) {
+            $this->session->set('errorMsg', 'Invalid Username/Password');
+            //create a new record
+            $lHistory = new LoginHistory();
+            $lHistory->setStatus(LoginHistory::NOT_ALLOW);
+            $lHistory->setUserIp($userIp);
+            $this->entityManager->persist($lHistory);
+            $this->entityManager->flush();
         }
 
-        //create a new record
-        $lHistory = new LoginHistory();
-        $lHistory->setStatus(LoginHistory::NOT_ALLOW);
-        $lHistory->setUserIp($userIp);
-        $this->entityManager->persist($lHistory);
-        $this->entityManager->flush();
+        //search for 3 last attempts of login (count)
+        $historyRecords = $loginHistoryRepo->getRecordByIp30($userIp);
 
-        //search for 3 last attempts of login
-        $historyRecords = $loginHistoryRepo->findThreeLastRecordByIp($userIp);
-
-        $count = 0;
-
-        //loop through the attempt
-        foreach ($historyRecords as $historyRecord) {
-            //count fail login attempts
-            if ($historyRecord->getStatus() == LoginHistory::NOT_ALLOW) {
-                $count++;
-            }
-        }
-
-        if ($count == LoginHistory::LOGIN_ATTEMPT_ALLOW) {
+        //insert block record if attempt fail >= 3 and login check is false (block record > 30 min)
+        if ((count($historyRecords)) >= LoginHistory::LOGIN_ATTEMPT_ALLOW && $checkLogin) {
             $lHistory = new LoginHistory();
             $lHistory->setStatus(LoginHistory::BLOCK);
             $lHistory->setUserIp($userIp);

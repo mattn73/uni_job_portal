@@ -41,7 +41,9 @@ class LoginHistory
      */
     public function __construct()
     {
+        $timezone = new \DateTimeZone('Indian/Mauritius');
         $this->timestamp = new \DateTime();
+        $this->timestamp->setTimezone($timezone);
     }
 
     public function getId(): ?int
