@@ -148,7 +148,7 @@ class LoginFormAuthenticator extends AbstractFormLoginAuthenticator
         ]);
 
         if (null != $seeker) {
-            return new RedirectResponse($this->router->generate('seeker'));
+            return new RedirectResponse($this->router->generate('seeker_profile'));
         } elseif (null != $cPerson) {
             return new RedirectResponse($this->router->generate('company_index'));
         }

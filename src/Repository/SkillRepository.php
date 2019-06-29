@@ -47,6 +47,19 @@ class SkillRepository extends ServiceEntityRepository
         ;
     }
 
-
-
+    /**
+     * @param string $skill
+     * @return mixed
+     */
+    public function findSeekersBySkill(string $skill)
+    {
+        return $this->createQueryBuilder('s')
+            ->andWhere('s.name LIKE :skill')
+            ->leftJoin('s.seekers', 'ss')
+            ->addSelect('ss')
+            ->setParameter('skill', '%'.$skill.'%')
+            ->getQuery()
+            ->getResult()
+            ;
+    }
 }
