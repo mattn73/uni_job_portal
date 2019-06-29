@@ -4,13 +4,13 @@
 
 {% block body %}
 
-    {{ dump(applications) }}
     {% if applications is empty %}
         <h2> NO APPLICATIONS </h2>
     {% endif %}
 
     {% for application in applications %}
-    <div class="card">
+
+        <div class="card">
         <div class="card-header">
             {{ application.job.company.name }}
         </div>
@@ -24,7 +24,7 @@
             {% elseif application.status == 'reject' %}
                 <i class="far fa-times-circle app-reject"></i>
             {% endif %}
-            <a href="{{ path('seeker_view_application', {id: job.id}) }}" class="btn btn-primary">View Application</a>
+            <a href="{{ path('seeker_view_application', {id: application.job.id}) }}" class="btn btn-primary">View Application</a>
         </div>
     </div>
     {% endfor %}

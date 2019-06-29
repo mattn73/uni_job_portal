@@ -254,7 +254,7 @@ class SeekerController extends AbstractController
         $seeker = $seekerRepo->findOneBy(array('user' => $this->getUser()));
 
         $application = $seeker->getApplications();
-            dd($application);
+
         return $this->render('seeker/listApplication.html.twig', [
             'applications' => $application,
         ]);
