@@ -49,18 +49,29 @@ class LoginHistoryRepository extends ServiceEntityRepository
     */
 
     /**
-     * Get three last records of login history
+     * Get three last records of login history within 30 min
      *
      * @param $ipUser
-     * @return array
+     * @return int
+     * @throws \Exception
      */
-    public function findThreeLastRecordByIp($ipUser)
+    public function getRecordByIp30($ipUser)
     {
+        $now = new \DateTime();
+        $timezone = new \DateTimeZone('Indian/Mauritius');
+        $now->setTimezone($timezone);
+        $to = $now->format('Y-m-d H:i:s');
+        $from = $now->modify('-30 minutes')->format('Y-m-d H:i:s');
+
         return $this->createQueryBuilder('l')
             ->andWhere('l.UserIp = :userIp')
+            ->andWhere('l.timestamp BETWEEN :from AND :to')
+            ->andWhere('l.status = :status')
+            ->setParameter('status', LoginHistory::NOT_ALLOW)
             ->setParameter('userIp', $ipUser)
+            ->setParameter('to', $to)
+            ->setParameter('from', $from)
             ->orderBy('l.timestamp', 'DESC')
-            ->setMaxResults(3)
             ->getQuery()
             ->getResult()
             ;
