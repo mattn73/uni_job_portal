@@ -1,0 +1,25 @@
+<ul class="application">
+
+    <li>Job: {{ application.job.JobTitle }}</li>
+    <li>Applicant Title: {{ application.seeker.title }}</li>
+    <li>Applicant Name: {{ application.seeker.lastname ~ ' ' ~ application.seeker.firstname }}</li>
+    <li>Applicant Email: {{ application.seeker.email }}</li>
+    <li>Applicant Contact: {{ application.seeker.contact }}</li>
+    <li>Highest Qualification Achieve: {{ application.seeker.hqa }}</li>
+    {% if application.status == 'new' or application.status == 'pending' %}
+        <i class="fas fa-info-circle app-pending"></i>
+    {% elseif application.status == 'accept' %}
+        <i class="far fa-check-circle app-accept"></i>
+    {% elseif application.status == 'reject' %}
+        <i class="far fa-times-circle app-reject"></i>
+    {% endif %}
+    <div id="{{ application.id }}" class="btn-group app-action" role="group" aria-label="Basic example">
+        <button type="button" class="btn btn-success app-action-accept">Accept</button>
+        <button type="button" class="btn btn-danger app-action-reject">Reject</button>
+        <a href="{{ asset('uploads/')  ~ application.seeker.cv }}"
+           download="{{ application.seeker.lastname ~ '_' ~ application.seeker.firstname ~ '_cv' }}">
+            <button type="button" class="btn btn-primary">Download cv</button>
+        </a>
+    </div>
+</ul>
+

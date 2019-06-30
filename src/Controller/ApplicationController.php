@@ -3,8 +3,10 @@
 namespace App\Controller;
 
 use App\Entity\Application;
+use App\Entity\ApplicationNotification;
 use App\Entity\Company;
 use App\Entity\JobPosting;
+use App\Entity\Seeker;
 use Psr\Log\LoggerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
@@ -77,8 +79,38 @@ class ApplicationController extends AbstractController
             'applications' => $applications,
             'general' => true
         ]);
+    }
+
+    /**
+     * @Route("/company/application/{id}", name="view_application")
+     */
+    public function companyViewApplicationAction($id)
+    {
+        $applicationRepo = $this->getDoctrine()->getRepository(Application::class);
+
+        $application = $applicationRepo->find($id);
+
+        if (is_null($application)) {
+            return new Response(Response::HTTP_NOT_FOUND);
+        }
+
+        if ($application->getStatus() == Application::NEW) {
+            $status = Application::PENDING;
+
+            $application->setStatus($status);
+
+            $em = $this->getDoctrine()->getManager();
+
+            $em->persist($application);
+            $em->flush();
+
+            $this->addNotification($application);
+        }
 
 
+        return $this->render('application/application.twig', [
+            'application' => $application,
+        ]);
     }
 
     /**
@@ -88,9 +120,9 @@ class ApplicationController extends AbstractController
     {
         $id = $request->get('id');
         $status = $request->get('status');
-        $statusArray = array('accept', 'reject');
+        $statusArray = array('accept', 'reject', 'view');
 
-        if (is_null($id) || !is_numeric($id) || is_null($id) || !in_array($status , $statusArray)) {
+        if (is_null($id) || !is_numeric($id) || is_null($id) || !in_array($status, $statusArray)) {
             return new Response(Response::HTTP_BAD_REQUEST);
         }
 
@@ -102,10 +134,12 @@ class ApplicationController extends AbstractController
             return new Response(Response::HTTP_NOT_FOUND);
         }
 
-        if($status == 'accept'){
+        if ($status == 'accept') {
             $status = Application::ACCEPT;
-        }elseif ($status == 'reject'){
+        } elseif ($status == 'reject') {
             $status = Application::REJECT;
+        } elseif ($status == 'view') {
+            $status = Application::PENDING;
         }
 
         $application->setStatus($status);
@@ -115,13 +149,39 @@ class ApplicationController extends AbstractController
         $em->persist($application);
         $em->flush();
 
-        return $this->render('application/application.twig', [
+        $this->addNotification($application);
+
+        return $this->render('application/applicationpartial.twig', [
             'application' => $application,
             'general' => true
         ]);
     }
 
+    public function addNotification(Application $application)
+    {
 
+        $appNotificationRepo = $this->getDoctrine()->getRepository(ApplicationNotification::class);
+
+        $applicationNotification = $appNotificationRepo->findOneBy(['seeker' => $application->getSeeker(), 'application' => $application]);
+
+        if (!is_null($applicationNotification)) {
+            return true;
+        }
+
+
+        $applicationNotification = new ApplicationNotification();
+        $applicationNotification->setSeeker($application->getSeeker());
+        $applicationNotification->setApplication($application);
+
+        $em = $this->getDoctrine()->getManager();
+
+        $em->persist($applicationNotification);
+        $em->flush();
+
+        return true;
+
+
+    }
 
 
 }

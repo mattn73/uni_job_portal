@@ -86,12 +86,17 @@ class Seeker
      */
     private $applications;
 
+    /**
+     * @ORM\OneToMany(targetEntity="App\Entity\ApplicationNotification", mappedBy="seeker", orphanRemoval=true)
+     */
+    private $notification;
 
 
     public function __construct()
     {
         $this->skill = new ArrayCollection();
         $this->applications = new ArrayCollection();
+        $this->notification = new ArrayCollection();
     }
 
     public function getId(): ?int
@@ -276,5 +281,34 @@ class Seeker
         return $this;
     }
 
+    /**
+     * @return Collection|ApplicationNotification[]
+     */
+    public function getNotification(): Collection
+    {
+        return $this->notification;
+    }
 
+    public function addNotification(ApplicationNotification $notification): self
+    {
+        if (!$this->notification->contains($notification)) {
+            $this->notification[] = $notification;
+            $notification->setSeeker($this);
+        }
+
+        return $this;
+    }
+
+    public function removeNotification(ApplicationNotification $notification): self
+    {
+        if ($this->notification->contains($notification)) {
+            $this->notification->removeElement($notification);
+            // set the owning side to null (unless already changed)
+            if ($notification->getSeeker() === $this) {
+                $notification->setSeeker(null);
+            }
+        }
+
+        return $this;
+    }
 }
